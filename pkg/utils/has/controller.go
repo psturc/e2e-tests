@@ -66,7 +66,7 @@ func (h *SuiteController) CreateHasApplication(name, namespace string) (*appserv
 		return nil, err
 	}
 
-	if err := utils.WaitUntil(h.ApplicationDevfilePresent(application), time.Second*30); err != nil {
+	if err := utils.WaitUntil(h.ApplicationDevfilePresent(application), time.Second*60); err != nil {
 		return nil, fmt.Errorf("timed out when waiting for devfile content creation for application %s in %s namespace: %+v", name, namespace, err)
 	}
 
@@ -323,13 +323,7 @@ func (h *SuiteController) GetComponentDetectionQuery(name, namespace string) (*a
 
 // GetComponentPipeline returns the pipeline for a given component labels
 func (h *SuiteController) GetComponentPipelineRun(componentName, applicationName, namespace string, pacBuild bool, sha string) (*v1beta1.PipelineRun, error) {
-	var pipelineRunLabels map[string]string
-
-	if pacBuild {
-		pipelineRunLabels = map[string]string{"appstudio.openshift.io/component": componentName, "appstudio.openshift.io/application": applicationName}
-	} else {
-		pipelineRunLabels = map[string]string{"build.appstudio.openshift.io/component": componentName, "build.appstudio.openshift.io/application": applicationName}
-	}
+	pipelineRunLabels := map[string]string{"appstudio.openshift.io/component": componentName, "appstudio.openshift.io/application": applicationName}
 
 	if sha != "" {
 		pipelineRunLabels["pipelinesascode.tekton.dev/sha"] = sha
@@ -339,7 +333,7 @@ func (h *SuiteController) GetComponentPipelineRun(componentName, applicationName
 	err := h.KubeRest().List(context.TODO(), list, &rclient.ListOptions{LabelSelector: labels.SelectorFromSet(pipelineRunLabels), Namespace: namespace})
 
 	if err != nil && !k8sErrors.IsNotFound(err) {
-		return nil, fmt.Errorf("error listing pipelineruns in %s namespace", namespace)
+		return nil, fmt.Errorf("error listing pipelineruns in %s namespace: %+v", namespace, err)
 	}
 
 	if len(list.Items) > 0 {
