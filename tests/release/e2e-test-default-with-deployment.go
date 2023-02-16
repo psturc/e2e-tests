@@ -4,7 +4,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/redhat-appstudio/e2e-tests/pkg/constants"
@@ -25,8 +24,8 @@ var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deploy
 	Expect(err).NotTo(HaveOccurred())
 
 	// var defaultEcPolicy = ecp.EnterpriseContractPolicySpec{}
-	var devNamespace = uuid.New().String()
-	var managedNamespace = uuid.New().String()
+	var devNamespace = utils.GetGeneratedNamespace("release-dev")
+	var managedNamespace = utils.GetGeneratedNamespace("release-managed")
 
 	var cm = &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -66,7 +65,7 @@ var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deploy
 		_, err = framework.CommonController.CreateRegistryAuthSecret(hacbsReleaseTestsTokenSecret, devNamespace, sourceAuthJson)
 		Expect(err).ToNot(HaveOccurred())
 
-		_, err = framework.ReleaseController.CreateRegistryJsonSecret(redhatAppstudioUserSecret, managedNamespace, destinationAuthJson, destinationKeyName)
+		_, err = framework.CommonController.CreateRegistryAuthSecret(redhatAppstudioUserSecret, managedNamespace, sourceAuthJson)
 		Expect(err).ToNot(HaveOccurred())
 
 		err = framework.CommonController.LinkSecretToServiceAccount(devNamespace, hacbsReleaseTestsTokenSecret, "pipeline")
@@ -138,7 +137,7 @@ var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deploy
 		_, err = framework.HasController.CreateHasApplication(applicationNameDefault, devNamespace)
 		Expect(err).NotTo(HaveOccurred())
 
-		_, err = framework.HasController.CreateComponent(applicationNameDefault, componentName, devNamespace, gitSourceComponentUrl, "", containerImageUrl, "", "", false)
+		_, err = framework.HasController.CreateComponent(applicationNameDefault, componentName, devNamespace, gitSourceComponentUrl, "", containerImageUrl, "", "", true)
 		Expect(err).NotTo(HaveOccurred())
 
 	})
