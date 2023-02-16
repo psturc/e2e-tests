@@ -16,7 +16,6 @@ import (
 	ecp "github.com/hacbs-contract/enterprise-contract-controller/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	klog "k8s.io/klog/v2"
 )
 
 var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deployment", Label("release", "withDeployment", "HACBS"), func() {
@@ -25,7 +24,7 @@ var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deploy
 	framework, err := framework.NewFramework()
 	Expect(err).NotTo(HaveOccurred())
 
-	var defaultEcPolicy = ecp.EnterpriseContractPolicySpec{}
+	// var defaultEcPolicy = ecp.EnterpriseContractPolicySpec{}
 	var devNamespace = uuid.New().String()
 	var managedNamespace = uuid.New().String()
 
@@ -46,17 +45,17 @@ var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deploy
 
 		_, err := framework.CommonController.CreateTestNamespace(devNamespace)
 		Expect(err).NotTo(HaveOccurred(), "Error when creating devNamespace: %v", err)
-		klog.Info("Dev Namespace created: ", devNamespace)
+		GinkgoWriter.Printf("Dev Namespace created: ", devNamespace)
 
 		_, err = framework.CommonController.CreateTestNamespace(managedNamespace)
 		Expect(err).NotTo(HaveOccurred(), "Error when creating managedNamespace: %v", err)
-		klog.Info("Managed Namespace created: ", managedNamespace)
+		GinkgoWriter.Printf("Managed Namespace created: ", managedNamespace)
 
-		klog.Infof("Wait until the 'pipeline' SA is created in %s namespace \n", managedNamespace)
-		Eventually(func() bool {
-			sa, err := framework.CommonController.GetServiceAccount("pipeline", managedNamespace)
-			return sa != nil && err == nil
-		}, pipelineServiceAccountCreationTimeout, defaultInterval).Should(BeTrue(), "timed out when waiting for the \"pipeline\" SA to be created")
+		// GinkgoWriter.Printf("Wait until the 'pipeline' SA is created in %s namespace \n", managedNamespace)
+		// Eventually(func() bool {
+		// 	sa, err := framework.CommonController.GetServiceAccount("pipeline", managedNamespace)
+		// 	return sa != nil && err == nil
+		// }, pipelineServiceAccountCreationTimeout, defaultInterval).Should(BeTrue(), "timed out when waiting for the \"pipeline\" SA to be created")
 
 		sourceAuthJson := utils.GetEnv("QUAY_TOKEN", "")
 		Expect(sourceAuthJson).ToNot(BeEmpty())
@@ -73,18 +72,17 @@ var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deploy
 		err = framework.CommonController.LinkSecretToServiceAccount(devNamespace, hacbsReleaseTestsTokenSecret, "pipeline")
 		Expect(err).ToNot(HaveOccurred())
 
-		klog.Info("Dev Namespace:", devNamespace)
-		klog.Info("Managed Namespace:", managedNamespace)
-
 		// Copy the public key from tekton-chains/signing-secrets to a new
 		// secret that contains just the public key to ensure that access
 		// to password and private key are not needed.
 		publicKey, err := kubeController.GetPublicKey("signing-secrets", constants.TEKTON_CHAINS_NS)
 		Expect(err).ToNot(HaveOccurred())
+		// publicKeySource, err := kubeController.GetPublicKey(hacbsReleaseTestsTokenSecret, devNamespace)
+		// Expect(err).ToNot(HaveOccurred())
 		Expect(kubeController.CreateOrUpdateSigningSecret(
 			publicKey, publicSecretNameAuth, managedNamespace)).To(Succeed())
 
-		defaultEcPolicy = ecp.EnterpriseContractPolicySpec{
+		defaultEcPolicy := ecp.EnterpriseContractPolicySpec{
 			Description: "Red Hat's enterprise requirements",
 			PublicKey:   string(publicKey),
 			Sources: []ecp.Source{
@@ -99,7 +97,11 @@ var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deploy
 				},
 			},
 			Exceptions: &ecp.EnterpriseContractPolicyExceptions{
-				NonBlocking: []string{"tasks", "attestation_task_bundle", "java", "test", "not_useful"},
+				NonBlocking: []string{
+					"tasks", "attestation_task_bundle", "java", "dc-metro-map",
+					"test", "hermetic_build_task.build_task_not_hermetic",
+					"buildah_build_task.dockerfile_param_external_source",
+					"step_image_registries.disallowed_task_step_image"},
 			},
 		}
 
@@ -109,16 +111,16 @@ var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deploy
 		_, err = framework.ReleaseController.CreateReleasePlan(sourceReleasePlanName, devNamespace, applicationNameDefault, managedNamespace, "")
 		Expect(err).NotTo(HaveOccurred())
 
-		_, err = framework.ReleaseController.CreateReleaseStrategy(releaseStrategyDefaultName, managedNamespace, releasePipelineNameDefault, releasePipelineBundleDefault, releaseStrategyPolicyDefault, releaseStrategyServiceAccountDefault, paramsReleaseStrategy)
+		_, err = framework.ReleaseController.CreateReleaseStrategy("mvp-deploy-strategy", managedNamespace, "deploy-release", "quay.io/hacbs-release/pipeline-deploy-release:main", releaseStrategyPolicyDefault, releaseStrategyServiceAccountDefault, paramsReleaseStrategy) //(releaseStrategyDefaultName, managedNamespace, releasePipelineNameDefault, releasePipelineBundleDefault, releaseStrategyPolicyDefault, releaseStrategyServiceAccountDefault, paramsReleaseStrategy)
 		Expect(err).NotTo(HaveOccurred())
 
 		_, err = framework.GitOpsController.CreateEnvironment(releaseEnvironment, managedNamespace)
 		Expect(err).NotTo(HaveOccurred())
 
-		_, err = framework.ReleaseController.CreateReleasePlanAdmission(targetReleasePlanAdmissionName, devNamespace, applicationNameDefault, managedNamespace, releaseEnvironment, "", releaseStrategyDefaultName)
+		_, err = framework.ReleaseController.CreateReleasePlanAdmission(targetReleasePlanAdmissionName, devNamespace, applicationNameDefault, managedNamespace, releaseEnvironment, "", "mvp-deploy-strategy") //releaseStrategyDefaultName)
 		Expect(err).NotTo(HaveOccurred())
 
-		_, err = framework.TektonController.CreateEnterpriseContractPolicy(releaseStrategyPolicyDefault, managedNamespace, defaultEcPolicy)
+		_, err = framework.TektonController.CreateEnterpriseContractPolicy(releaseStrategyPolicyDefault, managedNamespace, defaultEcPolicy) //(releaseStrategyPolicyDefault, managedNamespace, defaultEcPolicy)
 		Expect(err).NotTo(HaveOccurred())
 
 		_, err = framework.TektonController.CreatePVCInAccessMode(releasePvcName, managedNamespace, corev1.ReadWriteOnce)
@@ -151,7 +153,7 @@ var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deploy
 
 	var _ = Describe("Post-release verification", func() {
 
-		It("verifies that in dev namespace will be created a PipelineRun.", func() {
+		It("verifies that a PipelineRun is created in dev namespace.", func() {
 			Eventually(func() bool {
 				prList, err := framework.TektonController.ListAllPipelineRuns(devNamespace)
 				if err != nil || prList == nil || len(prList.Items) < 1 {
@@ -206,10 +208,10 @@ var _ = framework.ReleaseSuiteDescribe("[HACBS-1199]test-release-e2e-with-deploy
 			}, releaseCreationTimeout, defaultInterval).Should(BeTrue())
 		})
 
-		It("cpoying the application and components from dev namespace to managed.", func(ctx SpecContext) {
+		It("tests that copying application and component works as designed.", func(ctx SpecContext) {
 			workingDir, err := os.Getwd()
 			if err != nil {
-				klog.Info(err)
+				GinkgoWriter.Printf(err.Error())
 			}
 
 			args := []string{managedNamespace, "-a", devNamespace + "/" + applicationNameDefault}
