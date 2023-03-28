@@ -1,6 +1,7 @@
 package o11y
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -9,6 +10,12 @@ import (
 	"strconv"
 
 	kubeCl "github.com/redhat-appstudio/e2e-tests/pkg/apis/kubernetes"
+	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/pointer"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type SuiteController struct {
@@ -82,4 +89,98 @@ func (h *SuiteController) GetRegexPodNameWithSize(podNameRegex string, results [
 	}
 
 	return podNameWithSize, nil
+}
+
+func (h *SuiteController) QuayImagePushPipelineRun(quayOrg, secret, namespace string) (*v1beta1.PipelineRun, error) {
+
+	pipelineRun := &v1beta1.PipelineRun{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "tekton.dev/v1beta1",
+			Kind:       "PipelineRun",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			GenerateName: "pipeline-egress-",
+			Namespace:    namespace,
+		},
+		Spec: v1beta1.PipelineRunSpec{
+			PipelineSpec: &v1beta1.PipelineSpec{
+				Tasks: []v1beta1.PipelineTask{
+					{
+						Name: "buildah-quay",
+						TaskRef: &v1beta1.TaskRef{
+							Name: "pull-and-push-image",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	task := &v1beta1.Task{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "pull-and-push-image",
+			Namespace: namespace,
+			Labels: map[string]string{
+				"app": "pull-and-push-image",
+			},
+		},
+		Spec: v1beta1.TaskSpec{
+			Steps: []v1beta1.Step{
+				{
+					Name:  "pull-and-push-image",
+					Image: "quay.io/redhat-appstudio/buildah:v1.28",
+					Env: []corev1.EnvVar{
+						{Name: "BUILDAH_FORMAT", Value: "oci"},
+						{Name: "STORAGE_DRIVER", Value: "vfs"},
+					},
+					Script: fmt.Sprintf(`#!/bin/sh
+							// srcImageRef="quay.io/redhat-appstudio/hacbs-test:latest"
+							authFilePath="/tekton/creds-secrets/%s/.dockerconfigjson"
+							destImageRef="quay.io/%s/o11y-workloads"
+							
+							# Set Permissions
+							sed -i 's/^\s*short-name-mode\s*=\s*.*/short-name-mode = "disabled"/' /etc/containers/registries.conf
+							# Setting new namespace to run buildah - 2^32-2
+							echo 'root:1:4294967294' | tee -a /etc/subuid >> /etc/subgid
+							# Pull Image
+							echo -e "FROM quay.io/libpod/alpine:latest\nRUN dd if=/dev/urandom of=/100mbfile bs=1M count=100" > Dockerfile
+							unshare -Ufp --keep-caps -r --map-users 1,1,65536 --map-groups 1,1,65536 -- buildah bud --tls-verify=false --no-cache -f ./Dockerfile -t "$destImageRef" .
+							IMAGE_SHA_DIGEST=$(buildah images --digests | grep ${destImageRef} | awk '{print $4}')
+							TAGGED_IMAGE_NAME="${destImageRef}:${IMAGE_SHA_DIGEST}"
+							buildah tag ${destImageRef} ${TAGGED_IMAGE_NAME}
+							buildah images
+							buildah push --authfile "$authFilePath" --disable-compression --tls-verify=false ${TAGGED_IMAGE_NAME}
+							echo "Successfully pushed Image"
+							# Sleep of 1m is for scraping interval
+							sleep 1m`, secret, quayOrg),
+					SecurityContext: &corev1.SecurityContext{
+						RunAsUser: pointer.Int64(0),
+						Capabilities: &corev1.Capabilities{
+							Add: []corev1.Capability{
+								"SETFCAP",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// Delete task if already exists
+	err := h.KubeRest().Delete(context.TODO(), task, &client.DeleteOptions{})
+	if err != nil && !errors.IsNotFound(err) {
+		return nil, err
+	}
+
+	err = h.KubeRest().Create(context.TODO(), task)
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.KubeRest().Create(context.TODO(), pipelineRun)
+	if err != nil {
+		return nil, err
+	}
+
+	return pipelineRun, nil
 }
