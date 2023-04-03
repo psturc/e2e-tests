@@ -27,6 +27,7 @@ import (
 	"github.com/redhat-appstudio/e2e-tests/magefiles/installation"
 	"github.com/redhat-appstudio/e2e-tests/pkg/apis/github"
 	"github.com/redhat-appstudio/e2e-tests/pkg/constants"
+	"github.com/redhat-appstudio/e2e-tests/pkg/quay"
 	"github.com/redhat-appstudio/e2e-tests/pkg/utils"
 	tektonapi "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 )
@@ -174,6 +175,51 @@ func (Local) CleanupGithubOrg() error {
 	}
 	if dryRun {
 		klog.Info("If you really want to delete these repositories, run `DRY_RUN=false [REGEXP=<regexp>] mage local:cleanupGithubOrg`")
+	}
+	return nil
+}
+
+func (Local) CleanupQuay() error {
+	quayClient := quay.NewQuayClient(&http.Client{Transport: &http.Transport{}}, utils.GetEnv("DEFAULT_QUAY_ORG_TOKEN", ""), "https://quay.io/api/v1")
+	quayOrg := utils.GetEnv("DEFAULT_QUAY_ORG", "")
+
+	robots, err := quayClient.GetAllRobotAccounts()
+	if err != nil {
+		return err
+	}
+
+	r, err := regexp.Compile(fmt.Sprintf(`^%s\+(e2e-demos|has-e2e)`, quayOrg))
+	if err != nil {
+		return err
+	}
+
+	const timeFormat = "Mon, 02 Jan 2006 15:04:05 -0700"
+
+	for _, robot := range robots {
+		parsed, err := time.Parse(timeFormat, robot.Created)
+		if err != nil {
+			return err
+		}
+
+		if r.MatchString(robot.Name) && time.Since(parsed) > 24*time.Hour {
+			quayClient.DeleteRobotAccount(quayOrg, robot.Name)
+		}
+	}
+
+	r, err = regexp.Compile(`^(e2e-demos|has-e2e)`)
+	if err != nil {
+		return err
+	}
+
+	repos, err := quayClient.GetAllRepositories()
+	if err != nil {
+		return err
+	}
+
+	for _, repo := range repos {
+		if r.MatchString(repo.Name) && len(repo.LastModified) == 0 {
+			quayClient.DeleteRepository(quayOrg, repo.Name)
+		}
 	}
 	return nil
 }
