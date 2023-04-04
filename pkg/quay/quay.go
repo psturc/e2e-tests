@@ -26,8 +26,6 @@ import (
 	"io"
 	"net/http"
 	"strings"
-
-	"github.com/redhat-appstudio/e2e-tests/pkg/utils"
 )
 
 type QuayService interface {
@@ -282,8 +280,8 @@ func (c *QuayClient) AddPermissionsToRobotAccount(organization, imageRepository,
 }
 
 // Returns all repositories of the DEFAULT_QUAY_ORG organization
-func (c *QuayClient) GetAllRepositories() ([]Repository, error) {
-	url := fmt.Sprintf("%s/repository?last_modified=true&namespace=%s", c.url, utils.GetEnv("DEFAULT_QUAY_ORG", ""))
+func (c *QuayClient) GetAllRepositories(organization string) ([]Repository, error) {
+	url := fmt.Sprintf("%s/repository?last_modified=true&namespace=%s", c.url, organization)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -317,15 +315,15 @@ func (c *QuayClient) GetAllRepositories() ([]Repository, error) {
 }
 
 // Returns all robot accounts of the DEFAULT_QUAY_ORG organization
-func (c *QuayClient) GetAllRobotAccounts() ([]RobotAccount, error) {
-	url := fmt.Sprintf("%s/organization/%s/robots", c.url, utils.GetEnv("DEFAULT_QUAY_ORG", ""))
+func (c *QuayClient) GetAllRobotAccounts(organization string) ([]RobotAccount, error) {
+	url := fmt.Sprintf("%s/organization/%s/robots", c.url, organization)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", "Bearer", c.AuthToken))
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.AuthToken))
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := c.httpClient.Do(req)

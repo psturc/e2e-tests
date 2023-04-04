@@ -183,7 +183,7 @@ func (Local) CleanupQuay() error {
 	quayClient := quay.NewQuayClient(&http.Client{Transport: &http.Transport{}}, utils.GetEnv("DEFAULT_QUAY_ORG_TOKEN", ""), "https://quay.io/api/v1")
 	quayOrg := utils.GetEnv("DEFAULT_QUAY_ORG", "")
 
-	robots, err := quayClient.GetAllRobotAccounts()
+	robots, err := quayClient.GetAllRobotAccounts(quayOrg)
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func (Local) CleanupQuay() error {
 		return err
 	}
 
-	repos, err := quayClient.GetAllRepositories()
+	repos, err := quayClient.GetAllRepositories(quayOrg)
 	if err != nil {
 		return err
 	}
