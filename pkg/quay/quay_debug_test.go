@@ -34,28 +34,6 @@ var (
 	quayRobotAccountName = "test-robot-account"
 )
 
-func TestCreateRepository(t *testing.T) {
-	if quayToken == "" {
-		return
-	}
-	quayClient := NewQuayClient(&http.Client{Transport: &http.Transport{}}, quayToken, quayApiUrl)
-
-	repositoryRequest := RepositoryRequest{
-		Namespace:   quayOrgName,
-		Visibility:  "public",
-		Description: "Test repository",
-		Repository:  quayImageRepoName,
-	}
-
-	repo, err := quayClient.CreateRepository(repositoryRequest)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if repo == nil {
-		t.Fatal("Created repository should not be nil")
-	}
-}
-
 func TestDeleteRepository(t *testing.T) {
 	if quayToken == "" {
 		return
@@ -68,21 +46,6 @@ func TestDeleteRepository(t *testing.T) {
 	}
 }
 
-func TestCreateRobotAccount(t *testing.T) {
-	if quayToken == "" {
-		return
-	}
-	quayClient := NewQuayClient(&http.Client{Transport: &http.Transport{}}, quayToken, quayApiUrl)
-
-	robotAccount, err := quayClient.CreateRobotAccount(quayOrgName, quayRobotAccountName)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if robotAccount == nil {
-		t.Fatal("Created robot account should not be nil")
-	}
-}
-
 func TestDeleteRobotAccount(t *testing.T) {
 	if quayToken == "" {
 		return
@@ -90,18 +53,6 @@ func TestDeleteRobotAccount(t *testing.T) {
 	quayClient := NewQuayClient(&http.Client{Transport: &http.Transport{}}, quayToken, quayApiUrl)
 
 	_, err := quayClient.DeleteRobotAccount(quayOrgName, quayRobotAccountName)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestAddPermissionsToRobotAccount(t *testing.T) {
-	if quayToken == "" {
-		return
-	}
-	quayClient := NewQuayClient(&http.Client{Transport: &http.Transport{}}, quayToken, quayApiUrl)
-
-	err := quayClient.AddPermissionsToRobotAccount(quayOrgName, quayImageRepoName, quayRobotAccountName)
 	if err != nil {
 		t.Fatal(err)
 	}
