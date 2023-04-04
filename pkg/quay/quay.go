@@ -19,13 +19,11 @@ limitations under the License.
 package quay
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 )
 
 type QuayClient struct {
@@ -171,7 +169,7 @@ func (c *QuayClient) GetAllRobotAccounts(organization string) ([]RobotAccount, e
 	}
 
 	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body) "Bearer"
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
