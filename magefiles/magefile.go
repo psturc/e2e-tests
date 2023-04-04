@@ -202,7 +202,10 @@ func (Local) CleanupQuay() error {
 		}
 
 		if r.MatchString(robot.Name) && time.Since(parsed) > 24*time.Hour {
-			quayClient.DeleteRobotAccount(quayOrg, robot.Name)
+			deleted, err := quayClient.DeleteRobotAccount(quayOrg, robot.Name)
+			if !deleted || err != nil {
+				return err
+			}
 		}
 	}
 
@@ -218,7 +221,10 @@ func (Local) CleanupQuay() error {
 
 	for _, repo := range repos {
 		if r.MatchString(repo.Name) && len(repo.LastModified) == 0 {
-			quayClient.DeleteRepository(quayOrg, repo.Name)
+			deleted, err := quayClient.DeleteRepository(quayOrg, repo.Name)
+			if !deleted || err != nil {
+				return err
+			}
 		}
 	}
 	return nil
