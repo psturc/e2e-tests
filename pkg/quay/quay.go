@@ -143,7 +143,10 @@ func (c *QuayClient) GetAllRepositories(organization string) ([]Repository, erro
 		Repositories []Repository
 	}
 	var response Response
-	json.Unmarshal(body, &response)
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
 	return response.Repositories, nil
 }
 
@@ -178,6 +181,9 @@ func (c *QuayClient) GetAllRobotAccounts(organization string) ([]RobotAccount, e
 		Robots []RobotAccount
 	}
 	var response Response
-	json.Unmarshal(body, &response)
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
 	return response.Robots, nil
 }
