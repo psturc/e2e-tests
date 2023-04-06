@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"regexp"
 	"strconv"
@@ -27,6 +28,8 @@ import (
 	"github.com/redhat-appstudio/e2e-tests/magefiles/installation"
 	"github.com/redhat-appstudio/e2e-tests/pkg/apis/github"
 	"github.com/redhat-appstudio/e2e-tests/pkg/constants"
+	e2eQuay "github.com/redhat-appstudio/e2e-tests/pkg/quay"
+
 	"github.com/redhat-appstudio/e2e-tests/pkg/utils"
 	tektonapi "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 )
@@ -178,6 +181,63 @@ func (Local) CleanupGithubOrg() error {
 	return nil
 }
 
+func (Local) CleanupQuay() error {
+	quayClient := e2eQuay.NewE2EQuayClient(
+		&http.Client{
+			Transport: &http.Transport{},
+		},
+		utils.GetEnv("DEFAULT_QUAY_ORG_TOKEN", ""),
+		"https://quay.io/api/v1",
+	)
+	quayOrg := utils.GetEnv("DEFAULT_QUAY_ORG", "")
+
+	robots, err := quayClient.GetAllRobotAccounts(quayOrg)
+	if err != nil {
+		return err
+	}
+
+	r, err := regexp.Compile(fmt.Sprintf(`^%s\+(e2e-demos|has-e2e)`, quayOrg))
+	if err != nil {
+		return err
+	}
+
+	const timeFormat = "Mon, 02 Jan 2006 15:04:05 -0700"
+
+	for _, robot := range robots {
+		parsed, err := time.Parse(timeFormat, robot.Created)
+		if err != nil {
+			return err
+		}
+
+		if r.MatchString(robot.Name) && time.Since(parsed) > 24*time.Hour {
+			deleted, err := quayClient.DeleteRobotAccount(quayOrg, robot.Name)
+			if !deleted || err != nil {
+				return err
+			}
+		}
+	}
+
+	r, err = regexp.Compile(`^(e2e-demos|has-e2e)`)
+	if err != nil {
+		return err
+	}
+
+	repos, err := quayClient.GetAllRepositories(quayOrg)
+	if err != nil {
+		return err
+	}
+
+	for _, repo := range repos {
+		if r.MatchString(repo.Name) && len(repo.LastModified) == 0 {
+			deleted, err := quayClient.DeleteRepository(quayOrg, repo.Name)
+			if !deleted || err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (ci CI) TestE2E() error {
 	var testFailure bool
 
@@ -215,7 +275,8 @@ func (ci CI) TestE2E() error {
 func RunE2ETests() error {
 	cwd, _ := os.Getwd()
 
-	return sh.RunV("ginkgo", "-p", "--timeout=90m", fmt.Sprintf("--output-dir=%s", artifactDir), "--junit-report=e2e-report.xml", "--label-filter=$E2E_TEST_SUITE_LABEL", "./cmd", "--", fmt.Sprintf("--config-suites=%s/tests/e2e-demos/config/default.yaml", cwd), "--generate-rppreproc-report=true", fmt.Sprintf("--rp-preproc-dir=%s", artifactDir))
+	// added --output-interceptor-mode=none to mitigate RHTAPBUGS-34
+	return sh.RunV("ginkgo", "-p", "--output-interceptor-mode=none", "--timeout=90m", fmt.Sprintf("--output-dir=%s", artifactDir), "--junit-report=e2e-report.xml", "--label-filter=$E2E_TEST_SUITE_LABEL", "./cmd", "--", fmt.Sprintf("--config-suites=%s/tests/e2e-demos/config/default.yaml", cwd), "--generate-rppreproc-report=true", fmt.Sprintf("--rp-preproc-dir=%s", artifactDir))
 }
 
 func PreflightChecks() error {
