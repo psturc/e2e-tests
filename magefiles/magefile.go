@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	nethttp "net/http"
+	"net/http"
 	"os"
 	"regexp"
 	"strconv"
@@ -182,10 +182,9 @@ func (Local) CleanupGithubOrg() error {
 }
 
 func (Local) CleanupQuay() error {
-	//http.Get("http://google.com")
 	quayClient := e2eQuay.NewE2EQuayClient(
-		&nethttp.Client{
-			Transport: &nethttp.Transport{},
+		&http.Client{
+			Transport: &http.Transport{},
 		},
 		utils.GetEnv("DEFAULT_QUAY_ORG_TOKEN", ""),
 		"https://quay.io/api/v1",
