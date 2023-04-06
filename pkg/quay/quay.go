@@ -1,12 +1,9 @@
 /*
 Copyright 2023 Red Hat, Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
 	http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,100 +17,33 @@ package quay
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
+
+	ic "github.com/redhat-appstudio/image-controller/pkg/quay"
 )
 
-type QuayClient struct {
-	url        string
+type Repository struct {
+	*ic.Repository
+	LastModified string `json:"last_modified"`
+}
+
+type E2EQuayClient struct {
+	*ic.QuayClient
 	httpClient *http.Client
-	AuthToken  string
+	url        string
 }
 
-func NewQuayClient(c *http.Client, authToken, url string) QuayClient {
-	return QuayClient{
-		httpClient: c,
-		AuthToken:  authToken,
-		url:        url,
+func NewE2EQuayClient(c *http.Client, authToken, url string) E2EQuayClient {
+	qc := ic.NewQuayClient(c, authToken, url)
+	return E2EQuayClient{
+		&qc, c, url,
 	}
-}
-
-// DeleteRepository deletes specified image repository.
-func (c *QuayClient) DeleteRepository(organization, imageRepository string) (bool, error) {
-	url := fmt.Sprintf("%s/repository/%s/%s", c.url, organization, imageRepository)
-
-	req, err := http.NewRequest(http.MethodDelete, url, nil)
-	if err != nil {
-		return false, err
-	}
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", "Bearer", c.AuthToken))
-	req.Header.Add("Content-Type", "application/json")
-
-	res, err := c.httpClient.Do(req)
-	if err != nil {
-		return false, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode == 204 {
-		return true, nil
-	}
-	if res.StatusCode == 404 {
-		return false, nil
-	}
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return false, err
-	}
-	data := &QuayError{}
-	err = json.Unmarshal(body, data)
-	if err != nil {
-		return false, err
-	}
-	return false, errors.New(data.ErrorMessage)
-}
-
-// DeleteRobotAccount deletes given Quay.io robot account in the organization.
-func (c *QuayClient) DeleteRobotAccount(organization string, robotName string) (bool, error) {
-	url := fmt.Sprintf("%s/organization/%s/robots/%s", c.url, organization, robotName)
-
-	req, err := http.NewRequest(http.MethodDelete, url, nil)
-	if err != nil {
-		return false, err
-	}
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", "Bearer", c.AuthToken))
-	req.Header.Add("Content-Type", "application/json")
-
-	res, err := c.httpClient.Do(req)
-	if err != nil {
-		return false, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode == 204 {
-		return true, nil
-	}
-	if res.StatusCode == 404 {
-		return false, nil
-	}
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return false, err
-	}
-	data := &QuayError{}
-	err = json.Unmarshal(body, data)
-	if err != nil {
-		return false, err
-	}
-	return false, errors.New(data.ErrorMessage)
 }
 
 // Returns all repositories of the DEFAULT_QUAY_ORG organization
-func (c *QuayClient) GetAllRepositories(organization string) ([]Repository, error) {
+func (c E2EQuayClient) GetAllRepositories(organization string) ([]Repository, error) {
 	url := fmt.Sprintf("%s/repository?last_modified=true&namespace=%s", c.url, organization)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -151,7 +81,7 @@ func (c *QuayClient) GetAllRepositories(organization string) ([]Repository, erro
 }
 
 // Returns all robot accounts of the DEFAULT_QUAY_ORG organization
-func (c *QuayClient) GetAllRobotAccounts(organization string) ([]RobotAccount, error) {
+func (c *E2EQuayClient) GetAllRobotAccounts(organization string) ([]ic.RobotAccount, error) {
 	url := fmt.Sprintf("%s/organization/%s/robots", c.url, organization)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -178,7 +108,7 @@ func (c *QuayClient) GetAllRobotAccounts(organization string) ([]RobotAccount, e
 	}
 
 	type Response struct {
-		Robots []RobotAccount
+		Robots []ic.RobotAccount
 	}
 	var response Response
 	err = json.Unmarshal(body, &response)

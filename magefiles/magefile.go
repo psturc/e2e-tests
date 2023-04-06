@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	nethttp "net/http"
 	"os"
 	"regexp"
 	"strconv"
@@ -27,7 +28,8 @@ import (
 	"github.com/redhat-appstudio/e2e-tests/magefiles/installation"
 	"github.com/redhat-appstudio/e2e-tests/pkg/apis/github"
 	"github.com/redhat-appstudio/e2e-tests/pkg/constants"
-	"github.com/redhat-appstudio/e2e-tests/pkg/quay"
+	e2eQuay "github.com/redhat-appstudio/e2e-tests/pkg/quay"
+
 	"github.com/redhat-appstudio/e2e-tests/pkg/utils"
 	tektonapi "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 )
@@ -180,7 +182,14 @@ func (Local) CleanupGithubOrg() error {
 }
 
 func (Local) CleanupQuay() error {
-	quayClient := quay.NewQuayClient(&http.Client{Transport: &http.Transport{}}, utils.GetEnv("DEFAULT_QUAY_ORG_TOKEN", ""), "https://quay.io/api/v1")
+	//http.Get("http://google.com")
+	quayClient := e2eQuay.NewE2EQuayClient(
+		&nethttp.Client{
+			Transport: &nethttp.Transport{},
+		},
+		utils.GetEnv("DEFAULT_QUAY_ORG_TOKEN", ""),
+		"https://quay.io/api/v1",
+	)
 	quayOrg := utils.GetEnv("DEFAULT_QUAY_ORG", "")
 
 	robots, err := quayClient.GetAllRobotAccounts(quayOrg)
