@@ -24,6 +24,7 @@ import (
 	. "github.com/onsi/gomega"
 	routev1 "github.com/openshift/api/route/v1"
 	buildservice "github.com/redhat-appstudio/build-service/api/v1alpha1"
+	buildserviceCtrls "github.com/redhat-appstudio/build-service/controllers"
 	"github.com/redhat-appstudio/e2e-tests/pkg/framework"
 	v1 "k8s.io/api/core/v1"
 )
@@ -45,6 +46,8 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 		var prCreationTime time.Time
 
 		BeforeAll(func() {
+
+			GinkgoWriter.Printf(buildserviceCtrls.BuildRequestUnconfigurePaCAnnotationValue)
 
 			f, err = framework.NewFramework(utils.GetGeneratedNamespace("build-e2e"))
 			Expect(err).NotTo(HaveOccurred())
