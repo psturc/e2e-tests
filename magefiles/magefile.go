@@ -109,7 +109,6 @@ func (Local) PrepareCluster() error {
 	if err := BootstrapCluster(); err != nil {
 		return fmt.Errorf("error when bootstrapping cluster: %v", err)
 	}
-
 	return nil
 }
 
@@ -222,8 +221,16 @@ func (ci CI) TestE2E() error {
 		return fmt.Errorf("error when bootstrapping cluster: %v", err)
 	}
 
+	if err := retry(registerPacServer, 3, 10*time.Second) ; err != nil {
+		klog.Infof("error when registering PAC server: %v", err)
+	}
+
 	if err := RunE2ETests(); err != nil {
 		testFailure = true
+	}
+
+	if err := retry(unregisterPacServer, 3, 10*time.Second); err != nil {
+		klog.Infof("error when unregistering PAC server: %v", err)
 	}
 
 	if err := ci.sendWebhook(); err != nil {
@@ -712,4 +719,60 @@ func AppendFrameworkDescribeGoFile(specFile string) error {
 
 	return err
 
+}
+
+func newSprayProxy() *SprayProxy {
+	sprayProxyUrl := os.Getenv("QE_SPRAYPROXY_HOST")
+	sprayProxyToken := os.Getenv("QE_SPRAYPROXY_TOKEN")
+	if sprayProxyUrl == "" || sprayProxyToken == "" {
+		klog.Error("env var QE_SPRAYPROXY_HOST is not set")
+		return nil
+	}
+	return NewSprayProxy(sprayProxyUrl, sprayProxyToken)
+}
+
+func registerPacServer() error {
+	pacControllerRoute, err := GetPacRoute()
+	if err != nil {
+		return err
+	}
+	pacControllerHost := fmt.Sprintf("https://%s", pacControllerRoute.Spec.Host)
+
+	sprayproxy := newSprayProxy()
+	_, err = sprayproxy.RegisterServer(pacControllerHost)
+
+	if err != nil {
+		klog.Error("Failed to register pac server", pacControllerHost)
+		return err
+	}
+	// for debugging purposes
+	servers, err := sprayproxy.GetServers()
+	if err != nil {
+		klog.Error("Failed to get servers")
+		return err
+	}
+	klog.Infof("Registered pac server %s, servers: %v", pacControllerHost, servers)
+	return nil
+}
+
+func unregisterPacServer() error {
+	pacControllerRoute, err := GetPacRoute()
+	if err != nil {
+		return err
+	}
+	pacControllerHost := fmt.Sprintf("https://%s", pacControllerRoute.Spec.Host)
+	sprayproxy := newSprayProxy()
+	_, err = sprayproxy.UnegisterServer(pacControllerHost)
+	if err != nil {
+		klog.Error("Failed to unregister pac server", pacControllerHost)
+		return err
+	}
+	// for debugging purposes
+	servers, err := sprayproxy.GetServers()
+	if err != nil {
+		klog.Error("Failed to get servers")
+		return err
+	}
+	klog.Infof("Registered pac server %s, servers: %v", pacControllerHost, servers)
+	return nil
 }
