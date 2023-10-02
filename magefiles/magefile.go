@@ -254,6 +254,7 @@ func (ci CI) TestE2E() error {
 	// }
 
 	if err := RunE2ETests(); err != nil {
+		testFailure = true
 		k8sClient, err := kubeCl.NewAdminKubernetesClient()
 		if err != nil {
 			klog.Errorf("error initializing kube client: %v", err)
