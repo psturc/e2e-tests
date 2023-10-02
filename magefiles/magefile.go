@@ -950,5 +950,5 @@ func CleanWorkload() error {
 
 func runTests(labelsToRun string, junitReportFile string) error {
 	// added --output-interceptor-mode=none to mitigate RHTAPBUGS-34
-	return sh.RunV("ginkgo", "-p", "--succinct", "--output-interceptor-mode=none", "--timeout=90m", fmt.Sprintf("--output-dir=%s", artifactDir), fmt.Sprintf("--junit-report=%s", junitReportFile), "--label-filter="+labelsToRun, "./cmd", "--", "--generate-rppreproc-report=true", fmt.Sprintf("--rp-preproc-dir=%s", artifactDir))
+	return sh.RunV("ginkgo", "-p", "--succinct", "--no-color", "--output-interceptor-mode=none", "--timeout=90m", fmt.Sprintf("--output-dir=%s", artifactDir), fmt.Sprintf("--junit-report=%s", junitReportFile), "--label-filter="+labelsToRun, "./cmd", "--", "--generate-rppreproc-report=true", fmt.Sprintf("--rp-preproc-dir=%s", artifactDir))
 }
