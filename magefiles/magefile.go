@@ -243,9 +243,9 @@ func (ci CI) TestE2E() error {
 		return fmt.Errorf("error when setting up required env vars: %v", err)
 	}
 
-	// if err := retry(BootstrapCluster, 2, 10*time.Second); err != nil {
-	// 	return fmt.Errorf("error when bootstrapping cluster: %v", err)
-	// }
+	if err := retry(BootstrapCluster, 2, 10*time.Second); err != nil {
+		return fmt.Errorf("error when bootstrapping cluster: %v", err)
+	}
 
 	// if requiresSprayProxyRegistering {
 	// 	if err := retry(registerPacServer, 3, 10*time.Second); err != nil {
