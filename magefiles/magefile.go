@@ -266,7 +266,6 @@ func (ci CI) TestE2E() error {
 		fmt.Printf("%s\n", strings.Repeat("*", 80))
 		fmt.Printf("HTML report is generated here: %s/junit.html\n", framework.GetFinalArtifactsLocation())
 		fmt.Printf("%s\n", strings.Repeat("*", 80))
-		return err
 	}
 
 	// if requiresSprayProxyRegistering {
