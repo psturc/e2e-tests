@@ -7,10 +7,8 @@ import (
 	"testing"
 
 	"github.com/onsi/ginkgo/v2"
-	"github.com/onsi/ginkgo/v2/types"
 	"github.com/onsi/gomega"
 
-	"github.com/redhat-appstudio/e2e-tests/pkg/framework"
 	_ "github.com/redhat-appstudio/e2e-tests/tests/build"
 	_ "github.com/redhat-appstudio/e2e-tests/tests/byoc"
 	_ "github.com/redhat-appstudio/e2e-tests/tests/enterprise-contract"
@@ -59,24 +57,24 @@ func TestE2E(t *testing.T) {
 	ginkgo.RunSpecs(t, "Red Hat App Studio E2E tests")
 }
 
-var _ = ginkgo.ReportAfterSuite("RP Preproc reporter", func(report types.Report) {
-	if generateRPPreprocReport {
-		//Generate Logs in dirs
-		framework.GenerateRPPreprocReport(report, rpPreprocDir)
-		//Generate modified JUnit xml file
-		resultsPath := rpPreprocDir + "/rp_preproc/results/"
-		if err := os.MkdirAll(resultsPath, os.ModePerm); err != nil {
-			klog.Error(err)
-		}
-		err := framework.GenerateCustomJUnitReport(report, resultsPath+"xunit.xml")
-		if err != nil {
-			klog.Error(err)
-		}
-	}
-})
+// var _ = ginkgo.ReportAfterSuite("RP Preproc reporter", func(report types.Report) {
+// 	if generateRPPreprocReport {
+// 		//Generate Logs in dirs
+// 		framework.GenerateRPPreprocReport(report, rpPreprocDir)
+// 		//Generate modified JUnit xml file
+// 		resultsPath := rpPreprocDir + "/rp_preproc/results/"
+// 		if err := os.MkdirAll(resultsPath, os.ModePerm); err != nil {
+// 			klog.Error(err)
+// 		}
+// 		err := framework.GenerateCustomJUnitReport(report, resultsPath+"xunit.xml")
+// 		if err != nil {
+// 			klog.Error(err)
+// 		}
+// 	}
+// })
 
-var _ = ginkgo.ReportAfterSuite("Polarion reporter", func(report types.Report) {
-	if generateTestCases {
-		framework.GeneratePolarionReport(report, polarionOutputFile, polarionProjectID)
-	}
-})
+// var _ = ginkgo.ReportAfterSuite("Polarion reporter", func(report types.Report) {
+// 	if generateTestCases {
+// 		framework.GeneratePolarionReport(report, polarionOutputFile, polarionProjectID)
+// 	}
+// })

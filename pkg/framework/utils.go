@@ -1,6 +1,9 @@
 package framework
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 func (c *ControllerHub) StoreAllArtifactsForNamespace(namespace string) error {
 	var finalError string
@@ -27,4 +30,31 @@ func appendErrorToString(baseString string, err error) string {
 		return fmt.Sprintf("%s\n%s", baseString, err)
 	}
 	return baseString
+}
+
+func GetArtifactsDir() string {
+	if os.Getenv("CI") == "true" {
+		return os.Getenv("ARTIFACT_DIR")
+	}
+	return getLocalArtifactsDir()
+}
+
+func GetFinalArtifactsLocation() string {
+	if os.Getenv("CI") == "true" {
+		var path string
+		path += "https://gcsweb-ci.apps.ci.l2s4.p1.openshiftapps.com/gcs/origin-ci-test"
+		if os.Getenv("PULL_NUMBER") != "" {
+			path += fmt.Sprintf("/pr-logs/pull/%s_%s/%s", os.Getenv("REPO_OWNER"), os.Getenv("REPO_NAME"), os.Getenv("PULL_NUMBER"))
+		}
+		path += fmt.Sprintf("/%s/%s/artifacts/redhat-appstudio-e2e/redhat-appstudio-e2e/artifacts", os.Getenv("JOB_NAME"), os.Getenv("BUILD_ID"))
+		return path
+	}
+	return getLocalArtifactsDir()
+}
+
+func getLocalArtifactsDir() string {
+	wd, _ := os.Getwd()
+	artifactsDir := fmt.Sprintf("%s/tmp/artifacts", wd)
+	os.MkdirAll(artifactsDir, 0775)
+	return artifactsDir
 }

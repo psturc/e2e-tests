@@ -36,7 +36,7 @@ var _ = framework.RemoteSecretSuiteDescribe(Label("remote-secret"), func() {
 	serviceAccountName := fmt.Sprintf("deployment-enabler-%s", util.GenerateRandomString(4))
 	roleName := fmt.Sprintf("deployment-enabler-%s", util.GenerateRandomString(4))
 	roleBindingName := fmt.Sprintf("deployment-enabler-%s", util.GenerateRandomString(4))
-	AfterEach(framework.ReportFailure(&fw))
+	//AfterEach(framework.ReportFailure(&fw))
 
 	Describe("SVPI-541 - Basic remote secret functionalities", Ordered, func() {
 		BeforeAll(func() {

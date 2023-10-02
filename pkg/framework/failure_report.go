@@ -3,35 +3,102 @@ package framework
 import (
 	"context"
 	"fmt"
-	. "github.com/onsi/ginkgo/v2"
 	"io"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/rest"
+	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	. "github.com/onsi/ginkgo/v2"
+
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/klog"
+
+	"github.com/redhat-appstudio/e2e-tests/pkg/logs"
 )
 
-func ReportFailure(f **Framework) func() {
-	namespaces := map[string]string{
-		"Build Service":       "build-service",
-		"JVM Build Service":   "jvm-build-service",
-		"Application Service": "application-service",
-		"Image Controller":    "image-controller"}
+var namespaces = map[string]string{
+	"Build Service":       "build-service",
+	"JVM Build Service":   "jvm-build-service",
+	"Application Service": "application-service",
+	"Image Controller":    "image-controller",
+}
+
+func ReportFailure() func() {
+	return func() {
+		report := CurrentSpecReport()
+		if report.Failed() {
+			msg := ""
+			now := time.Now()
+			msg += strings.Repeat("*", 20)
+			msg += "\nTest started at " + report.StartTime.String() + "\nTest ended at " + now.String()
+			msg += fmt.Sprintf("\nControllers logs are stored here: %s\n", getControllersLogsLocation())
+			msg += strings.Repeat("*", 20)
+			AddReportEntry("DEBUG", msg)
+		}
+	}
+}
+
+func getControllersLogsLocation() (path string) {
+	return GetFinalArtifactsLocation() + "/rhtap-controllers-logs"
+}
+
+func getLocalControllerLogsLocation() string {
+	return GetArtifactsDir() + "/rhtap-controllers-logs"
+}
+
+func StoreControllersLogs(ki kubernetes.Interface) {
+	logsMap := map[string][]byte{}
+	logsDir := getLocalControllerLogsLocation()
+
+	if os.Getenv("CI") == "true" {
+		logsDir = os.Getenv("ARTIFACT_DIR")
+	}
+	for _, v := range namespaces {
+		logs := ""
+		podInterface := ki.CoreV1().Pods(v)
+		pods, err := podInterface.List(context.Background(), metav1.ListOptions{})
+
+		if err != nil {
+			logs += "Error listing pods: " + err.Error() + "\n"
+		} else {
+			for _, pod := range pods.Items {
+				containers := []corev1.Container{}
+				containers = append(containers, pod.Spec.InitContainers...)
+				containers = append(containers, pod.Spec.Containers...)
+				for _, container := range containers {
+					req := podInterface.GetLogs(pod.Name, &corev1.PodLogOptions{Container: container.Name})
+					log, err := innerDumpPod(req, container.Name)
+					if err != nil {
+						log += "Error getting logs: " + err.Error() + "\n"
+					}
+					logs += log
+				}
+			}
+		}
+		logsMap[v+".log"] = []byte(logs)
+	}
+	if err := logs.StoreArtifactsToDir(logsMap, logsDir); err != nil {
+		klog.Errorf("error storing artifacts: %+v", err)
+	}
+}
+
+func ReportFailures(ki kubernetes.Interface) func() {
 	return func() {
 		report := CurrentSpecReport()
 		if report.Failed() {
 			now := time.Now()
 			AddReportEntry("timing", "Test started at "+report.StartTime.String()+
 				"\nTest ended at "+now.String())
-			fwk := *f
-			if fwk == nil {
+			if ki == nil {
 				return
 			}
 			for k, v := range namespaces {
 				msg := "\n========= " + k + " =========\n\n"
-				podInterface := fwk.AsKubeAdmin.CommonController.KubeInterface().CoreV1().Pods(v)
+				podInterface := ki.CoreV1().Pods(v)
 				pods, err := podInterface.List(context.Background(), metav1.ListOptions{})
 				if err != nil {
 					msg += "Error listing pods: " + err.Error() + "\n"
@@ -52,6 +119,7 @@ func ReportFailure(f **Framework) func() {
 					}
 				}
 				AddReportEntry(v, msg)
+				//logs.StoreArtifacts()
 			}
 		}
 	}

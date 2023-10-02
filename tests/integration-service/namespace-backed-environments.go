@@ -38,7 +38,7 @@ var _ = framework.IntegrationServiceSuiteDescribe("Namespace-backed Environment 
 	var snapshot, snapshot_push *appstudioApi.Snapshot
 	var integrationTestScenario *integrationv1beta1.IntegrationTestScenario
 	var env, ephemeralEnvironment, userPickedEnvironment *appstudioApi.Environment
-	AfterEach(framework.ReportFailure(&f))
+	//AfterEach(framework.ReportFailure(&f))
 
 	Describe("with happy path for Namespace-backed environments", Ordered, func() {
 		BeforeAll(func() {
@@ -90,7 +90,7 @@ var _ = framework.IntegrationServiceSuiteDescribe("Namespace-backed Environment 
 			})
 		})
 
-		It("creates an Ephemeral Environment", func ()  {
+		It("creates an Ephemeral Environment", func() {
 			Eventually(func() error {
 				ephemeralEnvironment, err = f.AsKubeAdmin.GitOpsController.GetEphemeralEnvironment(snapshot.Spec.Application, snapshot.Name, integrationTestScenario.Name, testNamespace)
 				return err

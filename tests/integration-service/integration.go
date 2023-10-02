@@ -43,7 +43,7 @@ var _ = framework.IntegrationServiceSuiteDescribe("Integration Service E2E tests
 	var snapshot *appstudioApi.Snapshot
 	var snapshotPush *appstudioApi.Snapshot
 	var env *appstudioApi.Environment
-	AfterEach(framework.ReportFailure(&f))
+	//AfterEach(framework.ReportFailure(&f))
 
 	Describe("with happy path for general flow of Integration service", Ordered, func() {
 		BeforeAll(func() {

@@ -33,7 +33,7 @@ import (
 var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "HACBS"), func() {
 
 	var f *framework.Framework
-	AfterEach(framework.ReportFailure(&f))
+	AfterEach(framework.ReportFailure())
 	var pacControllerRoute *routev1.Route
 
 	var err error
@@ -420,20 +420,20 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 				interval = time.Second * 1
 
 				Eventually(func() bool {
-					   prs, err := f.AsKubeAdmin.CommonController.Github.ListPullRequests(helloWorldComponentGitSourceRepoName)
-					   Expect(err).ShouldNot(HaveOccurred())
+					prs, err := f.AsKubeAdmin.CommonController.Github.ListPullRequests(helloWorldComponentGitSourceRepoName)
+					Expect(err).ShouldNot(HaveOccurred())
 
-					   for _, pr := range prs {
-							  if pr.Head.GetRef() == pacBranchName {
-									Expect(prHeadSha).NotTo(Equal(pr.Head.GetSHA()))
-									prNumber = pr.GetNumber()
-									prHeadSha = pr.Head.GetSHA()
-									return true
-							  }
-					   }
-					   return false
+					for _, pr := range prs {
+						if pr.Head.GetRef() == pacBranchName {
+							Expect(prHeadSha).NotTo(Equal(pr.Head.GetSHA()))
+							prNumber = pr.GetNumber()
+							prHeadSha = pr.Head.GetSHA()
+							return true
+						}
+					}
+					return false
 				}, timeout, interval).Should(BeTrue(), fmt.Sprintf("timed out when waiting for init PaC PR (branch name '%s') to be created in %s repository", pacBranchName, helloWorldComponentGitSourceRepoName))
-		 	})
+			})
 			It("PipelineRun should eventually finish", func() {
 				Expect(f.AsKubeAdmin.HasController.WaitForComponentPipelineToBeFinished(component, createdFileSHA, 2, f.AsKubeAdmin.TektonController)).To(Succeed())
 			})
@@ -1082,7 +1082,7 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 		})
 	})
 
-	Describe("Creating component with container image source", Ordered, func() {
+	Describe("Creating component with container image source", Ordered, Label("quickone"), func() {
 		var applicationName, componentName, testNamespace string
 		var timeout time.Duration
 
@@ -1123,7 +1123,7 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 			Consistently(func() bool {
 				_, err := f.AsKubeAdmin.HasController.GetComponentPipelineRun(componentName, applicationName, testNamespace, "")
 				Expect(err).To(HaveOccurred())
-				return strings.Contains(err.Error(), "no pipelinerun found")
+				return strings.Contains(err.Error(), "asdfno pipelinerun found")
 			}, timeout, constants.PipelineRunPollingInterval).Should(BeTrue(), fmt.Sprintf("expected no PipelineRun to be triggered for the component %s in %s namespace", componentName, testNamespace))
 		})
 	})

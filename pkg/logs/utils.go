@@ -10,17 +10,21 @@ import (
 )
 
 // createArtifactDirectory creates directory for storing artifacts of current spec.
-func createArtifactDirectory() (string, error) {
-	wd, _ := os.Getwd()
-	artifactDir := GetEnv("ARTIFACT_DIR", fmt.Sprintf("%s/tmp", wd))
-	classname := ShortenStringAddHash(CurrentSpecReport())
-	testLogsDir := fmt.Sprintf("%s/%s", artifactDir, classname)
+// if path to the directory is not provided, it creates it based on the ARTIFACT_DIR env var
+// if none of these is provided, then it creates a "./tmp" directory
+func createArtifactDirectory(dir string) (string, error) {
+	if dir == "" {
+		wd, _ := os.Getwd()
+		artifactDir := GetEnv("ARTIFACT_DIR", fmt.Sprintf("%s/tmp", wd))
+		classname := ShortenStringAddHash(CurrentSpecReport())
+		dir = fmt.Sprintf("%s/%s", artifactDir, classname)
+	}
 
-	if err := os.MkdirAll(testLogsDir, os.ModePerm); err != nil {
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		return "", err
 	}
 
-	return testLogsDir, nil
+	return dir, nil
 
 }
 
@@ -40,7 +44,24 @@ func StoreResourceYaml(resource any, name string) error {
 
 // StoreArtifacts stores given artifacts under artifact directory.
 func StoreArtifacts(artifacts map[string][]byte) error {
-	artifactsDirectory, err := createArtifactDirectory()
+	artifactsDirectory, err := createArtifactDirectory("")
+	if err != nil {
+		return err
+	}
+
+	for artifact_name, artifact_value := range artifacts {
+		filePath := fmt.Sprintf("%s/%s", artifactsDirectory, artifact_name)
+		if err := os.WriteFile(filePath, []byte(artifact_value), 0644); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// StoreArtifacts stores given artifacts under artifact directory.
+func StoreArtifactsToDir(artifacts map[string][]byte, path string) error {
+	artifactsDirectory, err := createArtifactDirectory(path)
 	if err != nil {
 		return err
 	}

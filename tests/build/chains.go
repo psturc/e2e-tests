@@ -30,7 +30,7 @@ var _ = framework.ChainsSuiteDescribe("Tekton Chains E2E tests", Label("ec", "HA
 	var kubeClient *framework.ControllerHub
 	var fwk *framework.Framework
 
-	AfterEach(framework.ReportFailure(&fwk))
+	//AfterEach(framework.ReportFailure(&fwk))
 
 	BeforeAll(func() {
 		// Allow the use of a custom namespace for testing.
