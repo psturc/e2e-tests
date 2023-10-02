@@ -85,7 +85,7 @@ func StoreControllersLogs(ki kubernetes.Interface) {
 		}
 		logsMap[v+".log"] = []byte(logs)
 	}
-	if err := logs.StoreArtifactsToDir(logsMap, logsDir); err != nil {
+	if err := logs.StoreArtifactsToDir(logsMap, logsDir+"/rhtap-controllers-logs"); err != nil {
 		klog.Errorf("error storing artifacts: %+v", err)
 	}
 }
