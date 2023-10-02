@@ -52,6 +52,19 @@ func GetFinalArtifactsLocation() string {
 	return getLocalArtifactsDir()
 }
 
+func GetGeneralArtifactsLocation() string {
+	if os.Getenv("CI") == "true" {
+		var path string
+		path += "https://gcsweb-ci.apps.ci.l2s4.p1.openshiftapps.com/gcs/origin-ci-test"
+		if os.Getenv("PULL_NUMBER") != "" {
+			path += fmt.Sprintf("/pr-logs/pull/%s_%s/%s", os.Getenv("REPO_OWNER"), os.Getenv("REPO_NAME"), os.Getenv("PULL_NUMBER"))
+		}
+		path += fmt.Sprintf("/%s/%s/artifacts/redhat-appstudio-e2e", os.Getenv("JOB_NAME"), os.Getenv("BUILD_ID"))
+		return path
+	}
+	return getLocalArtifactsDir()
+}
+
 func getLocalArtifactsDir() string {
 	wd, _ := os.Getwd()
 	artifactsDir := fmt.Sprintf("%s/tmp/artifacts", wd)
