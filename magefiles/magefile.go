@@ -137,7 +137,10 @@ func (Local) TestE2E() error {
 }
 
 func junit2HTML() {
-	if err := sh.RunV("junit2html", fmt.Sprintf("%s/junit.xml", artifactDir), fmt.Sprintf("--report-matrix=%s/junit-summary.html", artifactDir)); err != nil {
+	if err := sh.RunV("go", "install", "-mod=mod", "github.com/psturc/junit2html@experiment"); err != nil {
+		klog.Error(err)
+	}
+	if err := sh.RunV("bash", "-c", fmt.Sprintf("junit2html < %s/junit.xml > %s/junit-summary.html", artifactDir, artifactDir)); err != nil {
 		klog.Error(err)
 	}
 }
@@ -264,7 +267,7 @@ func (ci CI) TestE2E() error {
 
 		junit2HTML()
 		fmt.Printf("%s\n", strings.Repeat("*", 80))
-		fmt.Printf("HTML report is generated here: %s/junit.html\n", framework.GetFinalArtifactsLocation())
+		fmt.Printf("HTML report is generated here: %s/junit-summary.html\n", framework.GetFinalArtifactsLocation())
 		fmt.Printf("%s\n", strings.Repeat("*", 80))
 	}
 
