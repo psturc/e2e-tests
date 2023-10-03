@@ -37,8 +37,8 @@ func ReportFailure() func() {
 			msg += "\nTest started at " + report.StartTime.String() + "\nTest ended at " + now.String() + "\n\n"
 			//msg += fmt.Sprintf("\nControllers logs are stored here: %s\n", getControllersLogsLocation())
 			if os.Getenv("CI") == "true" {
-				msg += fmt.Sprintf(`\n<a href="%s">RHTAP custom resources are archived here</a>\n\n`, GetGeneralArtifactsLocation()+"/redhat-appstudio-gather/artifacts/")
-				msg += fmt.Sprintf(`\n<a href="%s">Logs from all OpenShift pods are archived here</a>\n`, GetGeneralArtifactsLocation()+"/redhat-appstudio-hypershift-gather/artifacts/pods/")
+				msg += fmt.Sprintf(`<a style="background-color:#AAE" href="%s">RHTAP custom resources are archived here</a>`, GetGeneralArtifactsLocation()+"/redhat-appstudio-gather/artifacts/")
+				msg += fmt.Sprintf(`<a style="background-color:#AAE" href="%s">Logs from all OpenShift pods are archived here</a>`, GetGeneralArtifactsLocation()+"/redhat-appstudio-hypershift-gather/artifacts/pods/")
 			}
 			msg += strings.Repeat("*", 100)
 			AddReportEntry("DEBUG", msg)
