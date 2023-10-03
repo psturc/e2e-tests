@@ -137,7 +137,7 @@ func (Local) TestE2E() error {
 }
 
 func junit2HTML() {
-	if err := sh.RunV("junit2html", fmt.Sprintf("%s/junit.xml", artifactDir), fmt.Sprintf("--report-matrix=%s/junit.html", artifactDir)); err != nil {
+	if err := sh.RunV("junit2html", fmt.Sprintf("%s/junit.xml", artifactDir), fmt.Sprintf("--report-matrix=%s/junit-summary.html", artifactDir)); err != nil {
 		klog.Error(err)
 	}
 }
