@@ -129,7 +129,7 @@ func (Local) TestE2E() error {
 
 		junit2HTML()
 		fmt.Printf("%s\n", strings.Repeat("*", 100))
-		fmt.Printf("HTML report is generated here: %s/junit.html\n", framework.GetFinalArtifactsLocation())
+		fmt.Printf("HTML report is generated here: %s/junit-summary.html\n", framework.GetFinalArtifactsLocation())
 		fmt.Printf("%s\n", strings.Repeat("*", 100))
 		return err
 	}
