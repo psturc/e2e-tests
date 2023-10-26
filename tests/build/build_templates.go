@@ -32,7 +32,7 @@ var (
 
 const pipelineCompletionRetries = 2
 
-var _ = framework.BuildSuiteDescribe("Build templates E2E test", Label("build", "HACBS"), func() {
+var _ = framework.BuildSuiteDescribe("Build templates E2E test", Label("build", "HACBS", "build-templates"), func() {
 	var f *framework.Framework
 	var err error
 	AfterEach(framework.ReportFailure(&f))
@@ -153,7 +153,7 @@ var _ = framework.BuildSuiteDescribe("Build templates E2E test", Label("build", 
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(pr).ToNot(BeNil(), fmt.Sprintf("PipelineRun for the component %s/%s not found", testNamespace, componentNames[i]))
 
-				logs, err := kubeadminClient.TektonController.GetTaskRunLogs(pr.GetName(), "show-sbom", testNamespace)
+				logs, err := kubeadminClient.TektonController.GetTaskRunLogs(pr.GetName(), "show-sbom-test-failure", testNamespace)
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(logs).To(HaveLen(1))
 				var sbomTaskLog string
