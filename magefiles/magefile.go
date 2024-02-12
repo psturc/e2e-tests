@@ -25,6 +25,7 @@ import (
 	"github.com/magefile/mage/sh"
 	"github.com/redhat-appstudio/e2e-tests/magefiles/installation"
 	"github.com/redhat-appstudio/e2e-tests/magefiles/testspecs"
+	"github.com/redhat-appstudio/e2e-tests/magefiles/upgrade"
 	"github.com/redhat-appstudio/e2e-tests/pkg/clients/github"
 	"github.com/redhat-appstudio/e2e-tests/pkg/clients/slack"
 	"github.com/redhat-appstudio/e2e-tests/pkg/clients/sprayproxy"
@@ -270,6 +271,12 @@ func (ci CI) TestE2E() error {
 			if alertErr := HandleErrorWithAlert(fmt.Errorf("failed to register SprayProxy: %+v", err), slack.ErrorSeverityLevelError); alertErr != nil {
 				return alertErr
 			}
+		}
+	}
+
+	if os.Getenv("PERFORM_OPENSHIFT_UPGRADE") == "true" {
+		if err := upgrade.PerformUpgrade(); err != nil {
+			return err
 		}
 	}
 
