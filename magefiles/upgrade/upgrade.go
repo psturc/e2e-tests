@@ -170,10 +170,10 @@ func PerformUpgrade() error {
 			return false, nil
 		}
 
-		for _, au := range us.clusterVersion.Status.AvailableUpdates {
-			if strings.Contains(au.Version, us.desiredMajorMinorVersion) {
-				klog.Infof("found the desired version %q in available updates", au.Version)
-				us.desiredFullVersion = au.Version
+		for _, au := range us.clusterVersion.Status.ConditionalUpdates {
+			if strings.Contains(au.Release.Version, us.desiredMajorMinorVersion) {
+				klog.Infof("found the desired version %q in available updates", au.Release.Version)
+				us.desiredFullVersion = au.Release.Version
 				return true, nil
 			}
 		}
@@ -185,6 +185,7 @@ func PerformUpgrade() error {
 	}
 
 	u.ToLatestAvailable = true
+	u.AllowNotRecommended = true
 
 	if err := u.Run(); err != nil {
 		return fmt.Errorf("error when triggering the upgrade: %+v", err)

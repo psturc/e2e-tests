@@ -243,6 +243,13 @@ func (ci CI) Bootstrap() error {
 	return nil
 }
 
+func (ci CI) PerformOpenShiftUpgrade() error {
+	if err := upgrade.PerformUpgrade(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (ci CI) TestE2E() error {
 	var testFailure bool
 
