@@ -28,7 +28,7 @@ var adminAcks = map[string]string{
 }
 
 const majorMinorVersionFormat = "4.%d"
-const stableChannelFormat = "stable-" + majorMinorVersionFormat
+const fastChannelFormat = "fast-" + majorMinorVersionFormat
 
 type statusHelper struct {
 	configClientset *configv1client.Clientset
@@ -73,11 +73,11 @@ func newStatusHelper(kcs *kubeclient.Clientset, ccs *configv1client.Clientset) (
 	klog.Infof("current channel is %q, current ocp version is %q", currentChannel, initialVersion)
 
 	var minorVersion int
-	if _, err = fmt.Sscanf(currentChannel, stableChannelFormat, &minorVersion); err != nil {
+	if _, err = fmt.Sscanf(currentChannel, fastChannelFormat, &minorVersion); err != nil {
 		return nil, fmt.Errorf("can't detect the next version channel: %+v", err)
 	}
 	nextMajorMinorVersion := fmt.Sprintf(majorMinorVersionFormat, minorVersion+1)
-	nextVersionChannel := fmt.Sprintf(stableChannelFormat, minorVersion+1)
+	nextVersionChannel := fmt.Sprintf(fastChannelFormat, minorVersion+1)
 
 	var foundNextVersionChannel bool
 	for _, ch := range clusterVersion.Status.Desired.Channels {
