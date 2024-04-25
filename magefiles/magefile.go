@@ -128,7 +128,7 @@ func (Local) PrepareCluster() error {
 	if err := BootstrapCluster(); err != nil {
 		return fmt.Errorf("error when bootstrapping cluster: %v", err)
 	}
-	return nil
+	return registerPacServer()
 }
 
 func (Local) TestE2E() error {

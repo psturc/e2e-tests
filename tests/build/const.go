@@ -54,7 +54,6 @@ const (
 
 var (
 	componentUrls                   = strings.Split(utils.GetEnv(COMPONENT_REPO_URLS_ENV, pythonComponentGitSourceURL), ",") //multiple urls
-	componentNames                  []string
 	gihubOrg                        = utils.GetEnv(constants.GITHUB_E2E_ORGANIZATION_ENV, "redhat-appstudio-qe")
 	helloWorldComponentGitSourceURL = fmt.Sprintf(githubUrlFormat, gihubOrg, helloWorldComponentGitSourceRepoName)
 	annotationsTestGitSourceURL     = fmt.Sprintf(githubUrlFormat, gihubOrg, annotationsTestGitSourceRepoName)
