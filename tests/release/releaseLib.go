@@ -9,7 +9,7 @@ import (
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	appservice "github.com/redhat-appstudio/application-api/api/v1alpha1"
+	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 )
 
 func CreateComponentByCDQ(devFw framework.Framework, devNamespace, managedNamespace, appName, compName string, sourceGitURL string) *appservice.Component {

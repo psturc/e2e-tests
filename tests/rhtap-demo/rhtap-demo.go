@@ -9,7 +9,7 @@ import (
 	"time"
 
 	buildcontrollers "github.com/redhat-appstudio/build-service/controllers"
-	tektonutils "github.com/redhat-appstudio/release-service/tekton/utils"
+	tektonutils "github.com/konflux-ci/release-service/tekton/utils"
 
 	"github.com/redhat-appstudio/jvm-build-service/openshift-with-appstudio-test/e2e"
 	jvmclientSet "github.com/redhat-appstudio/jvm-build-service/pkg/client/clientset/versioned"
