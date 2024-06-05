@@ -6,17 +6,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/google/go-github/v44/github"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/has"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 
+	appstudioApi "github.com/konflux-ci/application-api/api/v1alpha1"
 	integrationv1beta1 "github.com/konflux-ci/integration-service/api/v1beta1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	appstudioApi "github.com/redhat-appstudio/application-api/api/v1alpha1"
 	pipeline "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 )
 
@@ -59,9 +58,9 @@ var _ = framework.IntegrationServiceSuiteDescribe("Status Reporting of Integrati
 			integrationTestScenarioFail, err = f.AsKubeAdmin.IntegrationController.CreateIntegrationTestScenario("", applicationName, testNamespace, gitURL, revision, pathInRepoFail)
 			Expect(err).ShouldNot(HaveOccurred())
 
-			componentName = fmt.Sprintf("%s-%s", "test-component-pac", util.GenerateRandomString(6))
+			componentName = fmt.Sprintf("%s-%s", "test-component-pac", utils.GenerateRandomString(6))
 			pacBranchName = constants.PaCPullRequestBranchPrefix + componentName
-			componentBaseBranchName = fmt.Sprintf("base-%s", util.GenerateRandomString(6))
+			componentBaseBranchName = fmt.Sprintf("base-%s", utils.GenerateRandomString(6))
 
 			err = f.AsKubeAdmin.CommonController.Github.CreateRef(componentRepoNameForStatusReporting, componentDefaultBranch, componentRevision, componentBaseBranchName)
 			Expect(err).ShouldNot(HaveOccurred())

@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	ecp "github.com/enterprise-contract/enterprise-contract-controller/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/common"
 	kubeapi "github.com/konflux-ci/e2e-tests/pkg/clients/kubernetes"
@@ -85,7 +84,7 @@ var _ = framework.EnterpriseContractSuiteDescribe("Enterprise Contract E2E tests
 		var defaultECP *ecp.EnterpriseContractPolicy
 
 		BeforeAll(func() {
-			buildPipelineRunName = fmt.Sprintf("buildah-demo-%s", util.GenerateRandomString(10))
+			buildPipelineRunName = fmt.Sprintf("buildah-demo-%s", utils.GenerateRandomString(10))
 			image = fmt.Sprintf("quay.io/%s/test-images:%s", utils.GetQuayIOOrganization(), buildPipelineRunName)
 			sharedSecret, err := fwk.AsKubeAdmin.CommonController.GetSecret(constants.QuayRepositorySecretNamespace, constants.QuayRepositorySecretName)
 			Expect(err).ShouldNot(HaveOccurred(), fmt.Sprintf("error when getting shared secret - make sure the secret %s in %s namespace is created", constants.QuayRepositorySecretName, constants.QuayRepositorySecretNamespace))
@@ -282,7 +281,7 @@ var _ = framework.EnterpriseContractSuiteDescribe("Enterprise Contract E2E tests
 			})
 
 			It("fails when unexpected signature is used", func() {
-				secretName := fmt.Sprintf("dummy-public-key-%s", util.GenerateRandomString(10))
+				secretName := fmt.Sprintf("dummy-public-key-%s", utils.GenerateRandomString(10))
 				publicKey := []byte("-----BEGIN PUBLIC KEY-----\n" +
 					"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAENZxkE/d0fKvJ51dXHQmxXaRMTtVz\n" +
 					"BQWcmJD/7pcMDEmBcmk8O1yUPIiFj5TMZqabjS9CQQN+jKHG+Bfi0BYlHg==\n" +
@@ -334,7 +333,7 @@ var _ = framework.EnterpriseContractSuiteDescribe("Enterprise Contract E2E tests
 				})
 
 				It("verifies ec validate accepts a list of image references", func() {
-					secretName := fmt.Sprintf("golden-image-public-key%s", util.GenerateRandomString(10))
+					secretName := fmt.Sprintf("golden-image-public-key%s", utils.GenerateRandomString(10))
 					GinkgoWriter.Println("Update public key to verify golden images")
 					goldenImagePublicKey := []byte("-----BEGIN PUBLIC KEY-----\n" +
 						"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEZP/0htjhVt2y0ohjgtIIgICOtQtA\n" +
@@ -380,7 +379,7 @@ var _ = framework.EnterpriseContractSuiteDescribe("Enterprise Contract E2E tests
 
 			Context("Release Policy", func() {
 				It("verifies redhat products pass the redhat policy rule collection before release ", func() {
-					secretName := fmt.Sprintf("golden-image-public-key%s", util.GenerateRandomString(10))
+					secretName := fmt.Sprintf("golden-image-public-key%s", utils.GenerateRandomString(10))
 					GinkgoWriter.Println("Update public key to verify golden images")
 					goldenImagePublicKey := []byte("-----BEGIN PUBLIC KEY-----\n" +
 						"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEZP/0htjhVt2y0ohjgtIIgICOtQtA\n" +
@@ -419,7 +418,7 @@ var _ = framework.EnterpriseContractSuiteDescribe("Enterprise Contract E2E tests
 					))
 				})
 				It("verifies the release policy: Task bundles are in acceptable bundle list", func() {
-					secretName := fmt.Sprintf("golden-image-public-key%s", util.GenerateRandomString(10))
+					secretName := fmt.Sprintf("golden-image-public-key%s", utils.GenerateRandomString(10))
 					GinkgoWriter.Println("Update public key to verify golden images")
 					goldenImagePublicKey := []byte("-----BEGIN PUBLIC KEY-----\n" +
 						"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEZP/0htjhVt2y0ohjgtIIgICOtQtA\n" +
@@ -462,7 +461,7 @@ var _ = framework.EnterpriseContractSuiteDescribe("Enterprise Contract E2E tests
 				})
 
 				It("verifies the release policy: Task bundle references pinned to digest", func() {
-					secretName := fmt.Sprintf("unpinned-task-bundle-public-key%s", util.GenerateRandomString(10))
+					secretName := fmt.Sprintf("unpinned-task-bundle-public-key%s", utils.GenerateRandomString(10))
 					unpinnedTaskPublicKey := []byte("-----BEGIN PUBLIC KEY-----\n" +
 						"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPfwkY/ru2JRd6FSqIp7lT3gzjaEC\n" +
 						"EAg+paWtlme2KNcostCsmIbwz+bc2aFV+AxCOpRjRpp3vYrbS5KhkmgC1Q==\n" +

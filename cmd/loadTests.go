@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/gosuri/uiprogress"
 	"github.com/gosuri/uitable/util/strutil"
+	appstudioApi "github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
@@ -22,7 +22,6 @@ import (
 	integrationv1beta1 "github.com/konflux-ci/integration-service/api/v1beta1"
 	metricsConstants "github.com/redhat-appstudio-qe/perf-monitoring/api/pkg/constants"
 	"github.com/redhat-appstudio-qe/perf-monitoring/api/pkg/metrics"
-	appstudioApi "github.com/redhat-appstudio/application-api/api/v1alpha1"
 	"github.com/spf13/cobra"
 	pipeline "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -1094,7 +1093,7 @@ func (h *ConcreteHandlerUsers) Handle(ctx *JourneyContext) {
 			var username string
 			if randomString {
 				// Create a 5 characters wide random string to be added to username (https://issues.redhat.com/browse/RHTAP-1338)
-				randomStr := util.GenerateRandomString(5)
+				randomStr := utils.GenerateRandomString(5)
 				username = fmt.Sprintf("%s-%s-%04d", usernamePrefix, randomStr, ctx.ThreadIndex*numberOfUsers+userIndex)
 			} else {
 				username = fmt.Sprintf("%s-%04d", usernamePrefix, ctx.ThreadIndex*numberOfUsers+userIndex)
@@ -1164,7 +1163,7 @@ func (h *ConcreteHandlerResources) Handle(ctx *JourneyContext) {
 			// Generate a random name with #combinations > 11M
 			// create unique resource names that adhere to RFC 1123 Label Names
 			// https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
-			applicationName := fmt.Sprintf("%s-app-%s", username, util.GenerateRandomString(5))
+			applicationName := fmt.Sprintf("%s-app-%s", username, utils.GenerateRandomString(5))
 			if !h.handleApplicationCreation(ctx, framework, username, usernamespace, applicationName) {
 				// If Application creation failed, continue with the next user
 				continue
@@ -1172,14 +1171,14 @@ func (h *ConcreteHandlerResources) Handle(ctx *JourneyContext) {
 
 			// Handle Integration Test Scenario Creation
 			// Generate a random name with #combinations > 11M
-			itsName := fmt.Sprintf("%s-its-%s", username, util.GenerateRandomString(5))
+			itsName := fmt.Sprintf("%s-its-%s", username, utils.GenerateRandomString(5))
 			if !h.handleIntegrationTestScenarioCreation(ctx, framework, username, usernamespace, applicationName, itsName) {
 				// If its creation failed, continue with the next user
 				continue
 			}
 
 			// Handle Component Detection Query Creation
-			cdqName := fmt.Sprintf("%s-cdq-%s", username, util.GenerateRandomString(5))
+			cdqName := fmt.Sprintf("%s-cdq-%s", username, utils.GenerateRandomString(5))
 			blnOK, cdq := h.handleCDQCreation(ctx, framework, username, usernamespace, applicationName, cdqName)
 			if !blnOK {
 				// If CDQ creation failed, continue with the next user

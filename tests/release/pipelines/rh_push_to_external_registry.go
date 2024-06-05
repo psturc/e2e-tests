@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
+	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/has"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/release"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
@@ -15,11 +15,10 @@ import (
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	"github.com/konflux-ci/e2e-tests/pkg/utils/contract"
 	releasecommon "github.com/konflux-ci/e2e-tests/tests/release"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	releaseApi "github.com/konflux-ci/release-service/api/v1alpha1"
 	tektonutils "github.com/konflux-ci/release-service/tekton/utils"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	pipeline "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -40,7 +39,7 @@ var _ = framework.ReleasePipelinesSuiteDescribe("[HACBS-1571]test-release-e2e-pu
 	var imageIDs []string
 	var pyxisKeyDecoded, pyxisCertDecoded []byte
 	var releasePR1, releasePR2 *pipeline.PipelineRun
-	scGitRevision := fmt.Sprintf("test-pyxis-%s", util.GenerateRandomString(4))
+	scGitRevision := fmt.Sprintf("test-pyxis-%s", utils.GenerateRandomString(4))
 
 	var component1, component2 *appservice.Component
 	var snapshot1, snapshot2 *appservice.Snapshot

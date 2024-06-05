@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/has"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
@@ -16,10 +15,10 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	appstudioApi "github.com/konflux-ci/application-api/api/v1alpha1"
 	integrationv1beta1 "github.com/konflux-ci/integration-service/api/v1beta1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	appstudioApi "github.com/redhat-appstudio/application-api/api/v1alpha1"
 	pipeline "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 )
 
@@ -63,9 +62,9 @@ var _ = framework.IntegrationServiceSuiteDescribe("Gitlab Status Reporting of In
 			integrationTestScenarioFail, err = f.AsKubeAdmin.IntegrationController.CreateIntegrationTestScenario("", applicationName, testNamespace, gitURL, revision, pathInRepoFail)
 			Expect(err).ShouldNot(HaveOccurred())
 
-			componentName = fmt.Sprintf("%s-%s", "test-comp-pac-gitlab", util.GenerateRandomString(6))
+			componentName = fmt.Sprintf("%s-%s", "test-comp-pac-gitlab", utils.GenerateRandomString(6))
 			pacBranchName = constants.PaCPullRequestBranchPrefix + componentName
-			componentBaseBranchName = fmt.Sprintf("base-gitlab-%s", util.GenerateRandomString(6))
+			componentBaseBranchName = fmt.Sprintf("base-gitlab-%s", utils.GenerateRandomString(6))
 
 			projectID = utils.GetEnv(constants.GITLAB_PROJECT_ID, "")
 			Expect(projectID).ShouldNot(BeEmpty())

@@ -3,22 +3,17 @@ package installation
 import (
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"os"
 	"time"
 
-	"strings"
-
 	appsv1 "k8s.io/api/apps/v1"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	configv1client "github.com/openshift/client-go/config/clientset/versioned"
 
-	appclientset "github.com/argoproj/argo-cd/v2/pkg/client/clientset/versioned"
 	kubeCl "github.com/konflux-ci/e2e-tests/pkg/clients/kubernetes"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
@@ -27,7 +22,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 
 	sigsConfig "sigs.k8s.io/controller-runtime/pkg/client/config"
@@ -165,7 +159,7 @@ func (i *InstallAppStudio) setInstallationEnvironments() {
 	os.Setenv("MY_GITHUB_ORG", i.LocalGithubForkOrganization)
 	os.Setenv("MY_GITHUB_TOKEN", utils.GetEnv("GITHUB_TOKEN", ""))
 	os.Setenv("MY_GIT_FORK_REMOTE", i.LocalForkName)
-	os.Setenv("TEST_BRANCH_ID", util.GenerateRandomString(4))
+	os.Setenv("TEST_BRANCH_ID", utils.GenerateRandomString(4))
 	os.Setenv("QUAY_TOKEN", i.QuayToken)
 	os.Setenv("IMAGE_CONTROLLER_QUAY_ORG", i.DefaultImageQuayOrg)
 	os.Setenv("IMAGE_CONTROLLER_QUAY_TOKEN", i.DefaultImageQuayOrgOAuth2Token)
@@ -219,73 +213,73 @@ func (i *InstallAppStudio) cloneInfraDeployments() error {
 }
 
 func (i *InstallAppStudio) CheckOperatorsReady() (err error) {
-	apiConfig, err := clientcmd.NewDefaultClientConfigLoadingRules().Load()
-	if err != nil {
-		klog.Fatal(err)
-	}
-	config, err := clientcmd.NewDefaultClientConfig(*apiConfig, &clientcmd.ConfigOverrides{}).ClientConfig()
-	if err != nil {
-		klog.Fatal(err)
-	}
-	appClientset := appclientset.NewForConfigOrDie(config)
+	// apiConfig, err := clientcmd.NewDefaultClientConfigLoadingRules().Load()
+	// if err != nil {
+	// 	klog.Fatal(err)
+	// }
+	// config, err := clientcmd.NewDefaultClientConfig(*apiConfig, &clientcmd.ConfigOverrides{}).ClientConfig()
+	// if err != nil {
+	// 	klog.Fatal(err)
+	// }
+	// appClientset := appclientset.NewForConfigOrDie(config)
 
-	patchPayload := []patchStringValue{{
-		Op:    "replace",
-		Path:  "/metadata/annotations/argocd.argoproj.io~1refresh",
-		Value: "hard",
-	}}
-	patchPayloadBytes, err := json.Marshal(patchPayload)
-	if err != nil {
-		klog.Fatal(err)
-	}
-	_, err = appClientset.ArgoprojV1alpha1().Applications("openshift-gitops").Patch(context.Background(), "all-application-sets", types.JSONPatchType, patchPayloadBytes, metav1.PatchOptions{})
-	if err != nil {
-		klog.Fatal(err)
-	}
+	// patchPayload := []patchStringValue{{
+	// 	Op:    "replace",
+	// 	Path:  "/metadata/annotations/argocd.argoproj.io~1refresh",
+	// 	Value: "hard",
+	// }}
+	// patchPayloadBytes, err := json.Marshal(patchPayload)
+	// if err != nil {
+	// 	klog.Fatal(err)
+	// }
+	// _, err = appClientset.ArgoprojV1alpha1().Applications("openshift-gitops").Patch(context.Background(), "all-application-sets", types.JSONPatchType, patchPayloadBytes, metav1.PatchOptions{})
+	// if err != nil {
+	// 	klog.Fatal(err)
+	// }
 
-	for {
-		var count = 0
-		appsListFor, err := appClientset.ArgoprojV1alpha1().Applications("openshift-gitops").List(context.Background(), metav1.ListOptions{})
-		for _, app := range appsListFor.Items {
-			fmt.Printf("Check application: %s\n", app.Name)
-			application, err := appClientset.ArgoprojV1alpha1().Applications("openshift-gitops").Get(context.Background(), app.Name, metav1.GetOptions{})
-			if err != nil {
-				klog.Fatal(err)
-			}
+	// for {
+	// 	var count = 0
+	// 	appsListFor, err := appClientset.ArgoprojV1alpha1().Applications("openshift-gitops").List(context.Background(), metav1.ListOptions{})
+	// 	for _, app := range appsListFor.Items {
+	// 		fmt.Printf("Check application: %s\n", app.Name)
+	// 		application, err := appClientset.ArgoprojV1alpha1().Applications("openshift-gitops").Get(context.Background(), app.Name, metav1.GetOptions{})
+	// 		if err != nil {
+	// 			klog.Fatal(err)
+	// 		}
 
-			if !(application.Status.Sync.Status == "Synced" && application.Status.Health.Status == "Healthy") {
-				klog.Infof("Application %s not ready", app.Name)
-				count++
-			} else if strings.Contains(application.String(), ("context deadline exceeded")) {
-				fmt.Printf("Refreshing Application %s\n", app.Name)
-				patchPayload := []patchStringValue{{
-					Op:    "replace",
-					Path:  "/metadata/annotations/argocd.argoproj.io~1refresh",
-					Value: "soft",
-				}}
+	// 		if !(application.Status.Sync.Status == "Synced" && application.Status.Health.Status == "Healthy") {
+	// 			klog.Infof("Application %s not ready", app.Name)
+	// 			count++
+	// 		} else if strings.Contains(application.String(), ("context deadline exceeded")) {
+	// 			fmt.Printf("Refreshing Application %s\n", app.Name)
+	// 			patchPayload := []patchStringValue{{
+	// 				Op:    "replace",
+	// 				Path:  "/metadata/annotations/argocd.argoproj.io~1refresh",
+	// 				Value: "soft",
+	// 			}}
 
-				patchPayloadBytes, err := json.Marshal(patchPayload)
-				if err != nil {
-					klog.Fatal(err)
-				}
-				for _, app := range appsListFor.Items {
-					_, err = i.KubernetesClient.KubeInterface().AppsV1().Deployments("openshift-gitops").Patch(context.Background(), app.Name, types.JSONPatchType, patchPayloadBytes, metav1.PatchOptions{})
-					if err != nil {
-						klog.Fatal(err)
-					}
-				}
-			}
-		}
-		if err != nil {
-			klog.Fatal(err)
-		}
+	// 			patchPayloadBytes, err := json.Marshal(patchPayload)
+	// 			if err != nil {
+	// 				klog.Fatal(err)
+	// 			}
+	// 			for _, app := range appsListFor.Items {
+	// 				_, err = i.KubernetesClient.KubeInterface().AppsV1().Deployments("openshift-gitops").Patch(context.Background(), app.Name, types.JSONPatchType, patchPayloadBytes, metav1.PatchOptions{})
+	// 				if err != nil {
+	// 					klog.Fatal(err)
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	if err != nil {
+	// 		klog.Fatal(err)
+	// 	}
 
-		if count == 0 {
-			klog.Info("All Application are ready\n")
-			break
-		}
-		time.Sleep(10 * time.Second)
-	}
+	// 	if count == 0 {
+	// 		klog.Info("All Application are ready\n")
+	// 		break
+	// 	}
+	// 	time.Sleep(10 * time.Second)
+	// }
 	return err
 }
 

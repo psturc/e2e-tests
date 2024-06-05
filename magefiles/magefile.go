@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"k8s.io/klog/v2"
@@ -392,7 +391,7 @@ func setRequiredEnvVars() error {
 				var defaultBundleRef string
 				var tektonObj runtime.Object
 
-				tag := fmt.Sprintf("%d-%s", time.Now().Unix(), util.GenerateRandomString(4))
+				tag := fmt.Sprintf("%d-%s", time.Now().Unix(), utils.GenerateRandomString(4))
 				quayOrg := utils.GetEnv(constants.DEFAULT_QUAY_ORG_ENV, constants.DefaultQuayOrg)
 				newS2iJavaTaskImg := strings.ReplaceAll(constants.DefaultImagePushRepo, constants.DefaultQuayOrg, quayOrg)
 				var newS2iJavaTaskRef, _ = name.ParseReference(fmt.Sprintf("%s:task-bundle-%s", newS2iJavaTaskImg, tag))
@@ -557,7 +556,7 @@ func SetupMultiPlatformTests() error {
 	var tektonObj runtime.Object
 
 	for _, platformType := range platforms {
-		tag := fmt.Sprintf("%d-%s", time.Now().Unix(), util.GenerateRandomString(4))
+		tag := fmt.Sprintf("%d-%s", time.Now().Unix(), utils.GenerateRandomString(4))
 		quayOrg := utils.GetEnv(constants.DEFAULT_QUAY_ORG_ENV, constants.DefaultQuayOrg)
 		newMultiPlatformBuilderPipelineImg := strings.ReplaceAll(constants.DefaultImagePushRepo, constants.DefaultQuayOrg, quayOrg)
 		var newRemotePipeline, _ = name.ParseReference(fmt.Sprintf("%s:pipeline-bundle-%s", newMultiPlatformBuilderPipelineImg, tag))
@@ -690,7 +689,7 @@ func SetupSourceBuild() {
 	keychain := authn.NewMultiKeychain(authn.DefaultKeychain)
 	authOption := remoteimg.WithAuthFromKeychain(keychain)
 
-	tag := fmt.Sprintf("%d-%s", time.Now().Unix(), util.GenerateRandomString(4))
+	tag := fmt.Sprintf("%d-%s", time.Now().Unix(), utils.GenerateRandomString(4))
 	quayOrg := utils.GetEnv(constants.DEFAULT_QUAY_ORG_ENV, constants.DefaultQuayOrg)
 	newSourceBuildPipelineImg := strings.ReplaceAll(constants.DefaultImagePushRepo, constants.DefaultQuayOrg, quayOrg)
 	var newSourceBuildPipeline, _ = name.ParseReference(fmt.Sprintf("%s:pipeline-bundle-%s", newSourceBuildPipelineImg, tag))
@@ -721,7 +720,7 @@ func createNewTaskBundleAndPush(currentSourceTaskBundle, sourceImage string) str
 	keychain := authn.NewMultiKeychain(authn.DefaultKeychain)
 	authOption := remoteimg.WithAuthFromKeychain(keychain)
 
-	tag := fmt.Sprintf("%d-%s", time.Now().Unix(), util.GenerateRandomString(4))
+	tag := fmt.Sprintf("%d-%s", time.Now().Unix(), utils.GenerateRandomString(4))
 	quayOrg := utils.GetEnv(constants.DEFAULT_QUAY_ORG_ENV, constants.DefaultQuayOrg)
 	newSourceBuildTaskImg := strings.ReplaceAll(constants.DefaultImagePushRepo, constants.DefaultQuayOrg, quayOrg)
 	var newSourceBuildTask, _ = name.ParseReference(fmt.Sprintf("%s:task-bundle-%s", newSourceBuildTaskImg, tag))

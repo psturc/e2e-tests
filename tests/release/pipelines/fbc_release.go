@@ -5,18 +5,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	ecp "github.com/enterprise-contract/enterprise-contract-controller/api/v1alpha1"
+	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	"github.com/konflux-ci/e2e-tests/pkg/utils/tekton"
 	releasecommon "github.com/konflux-ci/e2e-tests/tests/release"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	releaseapi "github.com/konflux-ci/release-service/api/v1alpha1"
 	tektonutils "github.com/konflux-ci/release-service/tekton/utils"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	tektonv1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"knative.dev/pkg/apis"
@@ -48,21 +47,21 @@ var _ = framework.ReleasePipelinesSuiteDescribe("FBC e2e-tests", Label("release-
 	var issueId = "bz12345"
 	var productName = "preGA-product"
 	var productVersion = "v2"
-	var fbcApplicationName = "fbc-pipelines-app-" + util.GenerateRandomString(4)
-	var fbcHotfixAppName = "fbc-hotfix-app-" + util.GenerateRandomString(4)
-	var fbcPreGAAppName = "fbc-prega-app-" + util.GenerateRandomString(4)
-	var fbcComponentName = "fbc-pipelines-comp-" + util.GenerateRandomString(4)
-	var fbcHotfixCompName = "fbc-hotfix-comp-" + util.GenerateRandomString(4)
-	var fbcPreGACompName = "fbc-prega-comp-" + util.GenerateRandomString(4)
-	var fbcReleasePlanName = "fbc-pipelines-rp-" + util.GenerateRandomString(4)
-	var fbcHotfixRPName = "fbc-hotfix-rp-" + util.GenerateRandomString(4)
-	var fbcPreGARPName = "fbc-prega-rp-" + util.GenerateRandomString(4)
-	var fbcReleasePlanAdmissionName = "fbc-pipelines-rpa-" + util.GenerateRandomString(4)
-	var fbcHotfixRPAName = "fbc-hotfix-rpa-" + util.GenerateRandomString(4)
-	var fbcPreGARPAName = "fbc-prega-rpa-" + util.GenerateRandomString(4)
-	var fbcEnterpriseContractPolicyName = "fbc-pipelines-policy-" + util.GenerateRandomString(4)
-	var fbcHotfixECPolicyName = "fbc-hotfix-policy-" + util.GenerateRandomString(4)
-	var fbcPreGAECPolicyName = "fbc-prega-policy-" + util.GenerateRandomString(4)
+	var fbcApplicationName = "fbc-pipelines-app-" + utils.GenerateRandomString(4)
+	var fbcHotfixAppName = "fbc-hotfix-app-" + utils.GenerateRandomString(4)
+	var fbcPreGAAppName = "fbc-prega-app-" + utils.GenerateRandomString(4)
+	var fbcComponentName = "fbc-pipelines-comp-" + utils.GenerateRandomString(4)
+	var fbcHotfixCompName = "fbc-hotfix-comp-" + utils.GenerateRandomString(4)
+	var fbcPreGACompName = "fbc-prega-comp-" + utils.GenerateRandomString(4)
+	var fbcReleasePlanName = "fbc-pipelines-rp-" + utils.GenerateRandomString(4)
+	var fbcHotfixRPName = "fbc-hotfix-rp-" + utils.GenerateRandomString(4)
+	var fbcPreGARPName = "fbc-prega-rp-" + utils.GenerateRandomString(4)
+	var fbcReleasePlanAdmissionName = "fbc-pipelines-rpa-" + utils.GenerateRandomString(4)
+	var fbcHotfixRPAName = "fbc-hotfix-rpa-" + utils.GenerateRandomString(4)
+	var fbcPreGARPAName = "fbc-prega-rpa-" + utils.GenerateRandomString(4)
+	var fbcEnterpriseContractPolicyName = "fbc-pipelines-policy-" + utils.GenerateRandomString(4)
+	var fbcHotfixECPolicyName = "fbc-hotfix-policy-" + utils.GenerateRandomString(4)
+	var fbcPreGAECPolicyName = "fbc-prega-policy-" + utils.GenerateRandomString(4)
 
 	AfterEach(framework.ReportFailure(&devFw))
 

@@ -8,17 +8,17 @@ import (
 	"strings"
 	"time"
 
-	buildcontrollers "github.com/redhat-appstudio/build-service/controllers"
 	tektonutils "github.com/konflux-ci/release-service/tekton/utils"
+	buildcontrollers "github.com/psturc/build-service/controllers"
 
 	"github.com/redhat-appstudio/jvm-build-service/openshift-with-appstudio-test/e2e"
 	jvmclientSet "github.com/redhat-appstudio/jvm-build-service/pkg/client/clientset/versioned"
 	pipelineclientset "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/devfile/library/v2/pkg/util"
 	ecp "github.com/enterprise-contract/enterprise-contract-controller/api/v1alpha1"
 	"github.com/google/go-github/v44/github"
+	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/has"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
@@ -27,14 +27,13 @@ import (
 	"github.com/konflux-ci/e2e-tests/pkg/utils/tekton"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	appservice "github.com/redhat-appstudio/application-api/api/v1alpha1"
 	"github.com/redhat-appstudio/jvm-build-service/pkg/apis/jvmbuildservice/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	releasecommon "github.com/konflux-ci/e2e-tests/tests/release"
 	integrationv1beta1 "github.com/konflux-ci/integration-service/api/v1beta1"
-	releaseApi "github.com/redhat-appstudio/release-service/api/v1alpha1"
+	releaseApi "github.com/konflux-ci/release-service/api/v1alpha1"
 	tektonapi "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 
 	e2eConfig "github.com/konflux-ci/e2e-tests/tests/rhtap-demo/config"
@@ -209,7 +208,7 @@ var _ = framework.RhtapDemoSuiteDescribe(func() {
 						// we need to create a new branch that we will target
 						// and that will contain the PaC configuration, so we can avoid polluting the default (main) branch
 						if componentSpec.AdvancedBuildSpec != nil {
-							componentNewBaseBranch = fmt.Sprintf("base-%s", util.GenerateRandomString(6))
+							componentNewBaseBranch = fmt.Sprintf("base-%s", utils.GenerateRandomString(6))
 							gitRevision = componentNewBaseBranch
 							Expect(fw.AsKubeAdmin.CommonController.Github.CreateRef(componentRepositoryName, componentSpec.GitSourceDefaultBranchName, componentSpec.GitSourceRevision, componentNewBaseBranch)).To(Succeed())
 						}

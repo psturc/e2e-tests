@@ -14,14 +14,13 @@ import (
 	"golang.org/x/crypto/ssh"
 	v1 "k8s.io/api/core/v1"
 
-	"github.com/devfile/library/v2/pkg/util"
+	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	appservice "github.com/redhat-appstudio/application-api/api/v1alpha1"
-	buildservice "github.com/redhat-appstudio/build-service/api/v1alpha1"
+	buildservice "github.com/psturc/build-service/api/v1alpha1"
 	pipeline "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -215,7 +214,7 @@ var _ = framework.MultiPlatformBuildSuiteDescribe("Multi Platform Controller E2E
 			Expect(testNamespace).NotTo(BeNil(), "failed to create sandbox user namespace")
 			Expect(err).ShouldNot(HaveOccurred())
 
-			dynamicInstanceTag := "dynamic-instance-" + util.GenerateRandomString(4)
+			dynamicInstanceTag := "dynamic-instance-" + utils.GenerateRandomString(4)
 			GinkgoWriter.Printf("Generated dynamic instance tag: %q\n", dynamicInstanceTag)
 
 			// Restart multi-platform-controller pod to reload configMap again
@@ -302,7 +301,7 @@ var _ = framework.MultiPlatformBuildSuiteDescribe("Multi Platform Controller E2E
 
 			restartMultiPlatformControllerPod(f)
 
-			dynamicInstanceTag = "ibmz-instance-" + util.GenerateRandomString(4)
+			dynamicInstanceTag = "ibmz-instance-" + utils.GenerateRandomString(4)
 			err = createConfigMapForIbmZDynamicInstance(f, dynamicInstanceTag)
 			Expect(err).ShouldNot(HaveOccurred())
 
@@ -385,7 +384,7 @@ var _ = framework.MultiPlatformBuildSuiteDescribe("Multi Platform Controller E2E
 			// Restart multi-platform-controller pod to reload configMap again
 			restartMultiPlatformControllerPod(f)
 
-			dynamicInstanceTag = "ibmp-instance-" + util.GenerateRandomString(4)
+			dynamicInstanceTag = "ibmp-instance-" + utils.GenerateRandomString(4)
 			err = createConfigMapForIbmPDynamicInstance(f, dynamicInstanceTag)
 			Expect(err).ShouldNot(HaveOccurred())
 
@@ -433,11 +432,11 @@ var _ = framework.MultiPlatformBuildSuiteDescribe("Multi Platform Controller E2E
 })
 
 func createApplicationAndComponent(f *framework.Framework, testNamespace string) (component *appservice.Component, applicationName, componentName string) {
-	applicationName = fmt.Sprintf("multi-platform-suite-application-%s", util.GenerateRandomString(4))
+	applicationName = fmt.Sprintf("multi-platform-suite-application-%s", utils.GenerateRandomString(4))
 	_, err := f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 	Expect(err).NotTo(HaveOccurred())
 
-	componentName = fmt.Sprintf("multi-platform-suite-component-%s", util.GenerateRandomString(4))
+	componentName = fmt.Sprintf("multi-platform-suite-component-%s", utils.GenerateRandomString(4))
 
 	// Create a component with Git Source URL being defined
 	componentObj := appservice.ComponentSpec{

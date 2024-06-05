@@ -7,14 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
+	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/tekton"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/logs"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	"github.com/konflux-ci/e2e-tests/pkg/utils/build"
 	. "github.com/onsi/ginkgo/v2"
-	appservice "github.com/redhat-appstudio/application-api/api/v1alpha1"
 	pipeline "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -411,7 +410,7 @@ func (h *HasController) RetriggerComponentPipelineRun(component *appservice.Comp
 				return "", fmt.Errorf("cannot retrigger PipelineRun - required annotation %q not found", targetBranchAnnotationName)
 			}
 		}
-		file, err := h.Github.CreateFile(repoName, util.GenerateRandomString(5), "test", branchName)
+		file, err := h.Github.CreateFile(repoName, utils.GenerateRandomString(5), "test", branchName)
 		if err != nil {
 			return "", fmt.Errorf("failed to retrigger PipelineRun %s in %s namespace: %+v", pr.GetName(), pr.GetNamespace(), err)
 		}

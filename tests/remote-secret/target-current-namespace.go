@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	. "github.com/onsi/ginkgo/v2"
@@ -28,7 +27,7 @@ var _ = framework.RemoteSecretSuiteDescribe(Label("remote-secret", "target-curre
 	var err error
 	var namespace string
 	var remoteSecret *v1beta1.RemoteSecret
-	remoteSecretName := fmt.Sprintf("test-remote-secret-%s", util.GenerateRandomString(4))
+	remoteSecretName := fmt.Sprintf("test-remote-secret-%s", utils.GenerateRandomString(4))
 	targetSecretName := ""
 
 	Describe("SVPI-558 - Target to the same namespace where the remote secret lives is always deployed", Ordered, func() {

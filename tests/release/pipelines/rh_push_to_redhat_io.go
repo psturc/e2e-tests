@@ -8,18 +8,17 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	ecp "github.com/enterprise-contract/enterprise-contract-controller/api/v1alpha1"
+	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	"github.com/konflux-ci/e2e-tests/pkg/utils/tekton"
 	releasecommon "github.com/konflux-ci/e2e-tests/tests/release"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	releaseapi "github.com/konflux-ci/release-service/api/v1alpha1"
 	tektonutils "github.com/konflux-ci/release-service/tekton/utils"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	tektonv1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -48,11 +47,11 @@ var _ = framework.ReleasePipelinesSuiteDescribe("e2e tests for rh-push-to-redhat
 	var err error
 	var devFw *framework.Framework
 	var managedFw *framework.Framework
-	var rhioApplicationName = "rhio-app-" + util.GenerateRandomString(4)
-	var rhioComponentName = "rhio-comp-" + util.GenerateRandomString(4)
-	var rhioReleasePlanName = "rhio-rp-" + util.GenerateRandomString(4)
-	var rhioReleasePlanAdmissionName = "rhio-rpa-" + util.GenerateRandomString(4)
-	var rhioEnterpriseContractPolicyName = "rhio-policy-" + util.GenerateRandomString(4)
+	var rhioApplicationName = "rhio-app-" + utils.GenerateRandomString(4)
+	var rhioComponentName = "rhio-comp-" + utils.GenerateRandomString(4)
+	var rhioReleasePlanName = "rhio-rp-" + utils.GenerateRandomString(4)
+	var rhioReleasePlanAdmissionName = "rhio-rpa-" + utils.GenerateRandomString(4)
+	var rhioEnterpriseContractPolicyName = "rhio-policy-" + utils.GenerateRandomString(4)
 
 	var snapshot *appservice.Snapshot
 	var releaseCR *releaseapi.Release

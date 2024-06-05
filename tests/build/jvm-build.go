@@ -9,7 +9,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/devfile/library/v2/pkg/util"
+	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/has"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
@@ -17,8 +17,7 @@ import (
 	"github.com/konflux-ci/e2e-tests/pkg/utils/tekton"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	appservice "github.com/redhat-appstudio/application-api/api/v1alpha1"
-	buildservice "github.com/redhat-appstudio/build-service/api/v1alpha1"
+	buildservice "github.com/psturc/build-service/api/v1alpha1"
 	"github.com/redhat-appstudio/jvm-build-service/openshift-with-appstudio-test/e2e"
 	"github.com/redhat-appstudio/jvm-build-service/pkg/apis/jvmbuildservice/v1alpha1"
 	jvmclientSet "github.com/redhat-appstudio/jvm-build-service/pkg/client/clientset/versioned"
@@ -112,11 +111,11 @@ var _ = framework.JVMBuildSuiteDescribe("JVM Build Service E2E tests", Label("jv
 		timeout = time.Minute * 20
 		interval = time.Second * 10
 
-		applicationName = fmt.Sprintf("jvm-build-suite-application-%s", util.GenerateRandomString(4))
+		applicationName = fmt.Sprintf("jvm-build-suite-application-%s", utils.GenerateRandomString(4))
 		_, err = f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 		Expect(err).NotTo(HaveOccurred())
 
-		componentName = fmt.Sprintf("jvm-build-suite-component-%s", util.GenerateRandomString(6))
+		componentName = fmt.Sprintf("jvm-build-suite-component-%s", utils.GenerateRandomString(6))
 
 		// Create a component with Git Source URL being defined
 		componentObj := appservice.ComponentSpec{

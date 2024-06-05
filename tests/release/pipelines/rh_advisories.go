@@ -8,18 +8,17 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	ecp "github.com/enterprise-contract/enterprise-contract-controller/api/v1alpha1"
+	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	"github.com/konflux-ci/e2e-tests/pkg/utils/tekton"
 	releasecommon "github.com/konflux-ci/e2e-tests/tests/release"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	releaseapi "github.com/konflux-ci/release-service/api/v1alpha1"
 	tektonutils "github.com/konflux-ci/release-service/tekton/utils"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	tektonv1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -47,11 +46,11 @@ var _ = framework.ReleasePipelinesSuiteDescribe("e2e tests for rh-advisories pip
 	var err error
 	var devFw *framework.Framework
 	var managedFw *framework.Framework
-	var advsApplicationName = "advs-app-" + util.GenerateRandomString(4)
-	var advsComponentName = "advs-comp-" + util.GenerateRandomString(4)
-	var advsReleasePlanName = "advs-rp-" + util.GenerateRandomString(4)
-	var advsReleasePlanAdmissionName = "advs-rpa-" + util.GenerateRandomString(4)
-	var advsEnterpriseContractPolicyName = "advs-policy-" + util.GenerateRandomString(4)
+	var advsApplicationName = "advs-app-" + utils.GenerateRandomString(4)
+	var advsComponentName = "advs-comp-" + utils.GenerateRandomString(4)
+	var advsReleasePlanName = "advs-rp-" + utils.GenerateRandomString(4)
+	var advsReleasePlanAdmissionName = "advs-rpa-" + utils.GenerateRandomString(4)
+	var advsEnterpriseContractPolicyName = "advs-policy-" + utils.GenerateRandomString(4)
 
 	var snapshot *appservice.Snapshot
 	var releaseCR *releaseapi.Release

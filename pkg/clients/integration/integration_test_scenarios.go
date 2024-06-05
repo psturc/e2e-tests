@@ -3,8 +3,8 @@ package integration
 import (
 	"context"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
+	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	integrationv1beta1 "github.com/konflux-ci/integration-service/api/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -13,7 +13,7 @@ import (
 // CreateIntegrationTestScenario creates beta1 version integrationTestScenario.
 func (i *IntegrationController) CreateIntegrationTestScenario(itsName, applicationName, namespace, gitURL, revision, pathInRepo string) (*integrationv1beta1.IntegrationTestScenario, error) {
 	if itsName == "" {
-		itsName = "my-integration-test-" + util.GenerateRandomString(4)
+		itsName = "my-integration-test-" + utils.GenerateRandomString(4)
 	}
 
 	integrationTestScenario := &integrationv1beta1.IntegrationTestScenario{

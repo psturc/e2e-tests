@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	ecp "github.com/enterprise-contract/enterprise-contract-controller/api/v1alpha1"
+	"github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/has"
 	kubeapi "github.com/konflux-ci/e2e-tests/pkg/clients/kubernetes"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
@@ -22,8 +22,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/openshift/library-go/pkg/image/reference"
-	"github.com/redhat-appstudio/application-api/api/v1alpha1"
-	buildservice "github.com/redhat-appstudio/build-service/api/v1alpha1"
+	buildservice "github.com/psturc/build-service/api/v1alpha1"
 
 	tektonpipeline "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 
@@ -97,7 +96,7 @@ var _ = framework.BuildSuiteDescribe("Build templates E2E test", Label("build", 
 			if os.Getenv("APP_SUFFIX") != "" {
 				applicationName = fmt.Sprintf("test-app-%s", os.Getenv("APP_SUFFIX"))
 			} else {
-				applicationName = fmt.Sprintf("test-app-%s", util.GenerateRandomString(4))
+				applicationName = fmt.Sprintf("test-app-%s", utils.GenerateRandomString(4))
 			}
 			testNamespace = os.Getenv(constants.E2E_APPLICATIONS_NAMESPACE_ENV)
 			if len(testNamespace) > 0 {
@@ -136,14 +135,14 @@ var _ = framework.BuildSuiteDescribe("Build templates E2E test", Label("build", 
 
 			for _, gitUrl := range componentUrls {
 				gitUrl := gitUrl
-				componentName = fmt.Sprintf("%s-%s", "test-comp", util.GenerateRandomString(4))
+				componentName = fmt.Sprintf("%s-%s", "test-comp", utils.GenerateRandomString(4))
 				name := OnboardComponent(kubeadminClient.HasController, gitUrl, "", applicationName, componentName, testNamespace)
 				Expect(name).ShouldNot(BeEmpty())
 				componentNames = append(componentNames, name)
 			}
 
 			// Create component for the repo containing symlink
-			symlinkComponentName = fmt.Sprintf("%s-%s", "test-symlink-comp", util.GenerateRandomString(4))
+			symlinkComponentName = fmt.Sprintf("%s-%s", "test-symlink-comp", utils.GenerateRandomString(4))
 			symlinkComponentName = OnboardComponent(
 				kubeadminClient.HasController, pythonComponentGitSourceURL, gitRepoContainsSymlinkBranchName,
 				applicationName, symlinkComponentName, testNamespace)

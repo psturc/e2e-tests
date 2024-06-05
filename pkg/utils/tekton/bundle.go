@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	remoteimg "github.com/google/go-containerregistry/pkg/v1/remote"
-	buildservice "github.com/redhat-appstudio/build-service/api/v1alpha1"
+	buildservice "github.com/psturc/build-service/api/v1alpha1"
 	"github.com/tektoncd/cli/pkg/bundle"
 	pipeline "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"github.com/tektoncd/pipeline/pkg/remote/oci"

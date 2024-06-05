@@ -14,12 +14,11 @@ import (
 	pointer "k8s.io/utils/ptr"
 
 	"github.com/google/go-github/v44/github"
+	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/has"
 	"github.com/konflux-ci/e2e-tests/pkg/utils/build"
 	"github.com/konflux-ci/e2e-tests/pkg/utils/tekton"
-	appservice "github.com/konflux-ci/application-api/api/v1alpha1"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	pipeline "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
@@ -31,8 +30,8 @@ import (
 	imagecontollers "github.com/konflux-ci/image-controller/controllers"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	buildservice "github.com/redhat-appstudio/build-service/api/v1alpha1"
-	"github.com/redhat-appstudio/build-service/controllers"
+	buildservice "github.com/psturc/build-service/api/v1alpha1"
+	"github.com/psturc/build-service/controllers"
 	v1 "k8s.io/api/core/v1"
 )
 
@@ -79,18 +78,18 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 			}
 			Expect(err).ShouldNot(HaveOccurred())
 
-			applicationName = fmt.Sprintf("build-suite-test-application-%s", util.GenerateRandomString(4))
+			applicationName = fmt.Sprintf("build-suite-test-application-%s", utils.GenerateRandomString(4))
 			_, err = f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 			Expect(err).NotTo(HaveOccurred())
 
-			componentName = fmt.Sprintf("%s-%s", "test-component-pac", util.GenerateRandomString(6))
+			componentName = fmt.Sprintf("%s-%s", "test-component-pac", utils.GenerateRandomString(6))
 			pacBranchName = constants.PaCPullRequestBranchPrefix + componentName
-			componentBaseBranchName = fmt.Sprintf("base-%s", util.GenerateRandomString(6))
+			componentBaseBranchName = fmt.Sprintf("base-%s", utils.GenerateRandomString(6))
 
 			err = f.AsKubeAdmin.CommonController.Github.CreateRef(helloWorldComponentGitSourceRepoName, helloWorldComponentDefaultBranch, helloWorldComponentRevision, componentBaseBranchName)
 			Expect(err).ShouldNot(HaveOccurred())
 
-			defaultBranchTestComponentName = fmt.Sprintf("test-custom-default-branch-%s", util.GenerateRandomString(6))
+			defaultBranchTestComponentName = fmt.Sprintf("test-custom-default-branch-%s", utils.GenerateRandomString(6))
 		})
 
 		AfterAll(func() {
@@ -652,16 +651,16 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 				Skip("Using private cluster (not reachable from Github), skipping...")
 			}
 
-			applicationName = fmt.Sprintf("build-suite-positive-mc-%s", util.GenerateRandomString(4))
+			applicationName = fmt.Sprintf("build-suite-positive-mc-%s", utils.GenerateRandomString(4))
 			_, err = f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 			Expect(err).NotTo(HaveOccurred())
 
-			multiComponentBaseBranchName = fmt.Sprintf("multi-component-base-%s", util.GenerateRandomString(6))
+			multiComponentBaseBranchName = fmt.Sprintf("multi-component-base-%s", utils.GenerateRandomString(6))
 			err = f.AsKubeAdmin.CommonController.Github.CreateRef(multiComponentGitSourceRepoName, multiComponentDefaultBranch, multiComponentGitRevision, multiComponentBaseBranchName)
 			Expect(err).ShouldNot(HaveOccurred())
 
 			//Branch for creating pull request
-			multiComponentPRBranchName = fmt.Sprintf("%s-%s", "pr-branch", util.GenerateRandomString(6))
+			multiComponentPRBranchName = fmt.Sprintf("%s-%s", "pr-branch", utils.GenerateRandomString(6))
 
 		})
 
@@ -695,7 +694,7 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 
 			for _, contextDir := range multiComponentContextDirs {
 				contextDir := contextDir
-				componentName := fmt.Sprintf("%s-%s", contextDir, util.GenerateRandomString(6))
+				componentName := fmt.Sprintf("%s-%s", contextDir, utils.GenerateRandomString(6))
 				pacBranchName := constants.PaCPullRequestBranchPrefix + componentName
 				pacBranchNames = append(pacBranchNames, pacBranchName)
 
@@ -817,11 +816,11 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 				Expect(err).NotTo(HaveOccurred())
 				namespace = fw.UserNamespace
 
-				appName = fmt.Sprintf("build-suite-negative-mc-%s", util.GenerateRandomString(4))
+				appName = fmt.Sprintf("build-suite-negative-mc-%s", utils.GenerateRandomString(4))
 				_, err = f.AsKubeAdmin.HasController.CreateApplication(appName, namespace)
 				Expect(err).NotTo(HaveOccurred())
 
-				compName = fmt.Sprintf("%s-%s", multiComponentContextDirs[0], util.GenerateRandomString(6))
+				compName = fmt.Sprintf("%s-%s", multiComponentContextDirs[0], utils.GenerateRandomString(6))
 
 				componentObj := appservice.ComponentSpec{
 					ComponentName: compName,
@@ -888,15 +887,15 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 			Expect(err).NotTo(HaveOccurred())
 			testNamespace = f.UserNamespace
 
-			applicationName = fmt.Sprintf("build-secret-lookup-%s", util.GenerateRandomString(4))
+			applicationName = fmt.Sprintf("build-secret-lookup-%s", utils.GenerateRandomString(4))
 			_, err = f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 			Expect(err).NotTo(HaveOccurred())
 
-			firstComponentBaseBranchName = fmt.Sprintf("component-one-base-%s", util.GenerateRandomString(6))
+			firstComponentBaseBranchName = fmt.Sprintf("component-one-base-%s", utils.GenerateRandomString(6))
 			err = f.AsKubeAdmin.CommonController.Github.CreateRefInOrg(noAppOrgName, secretLookupGitSourceRepoOneName, secretLookupDefaultBranchOne, secretLookupGitRevisionOne, firstComponentBaseBranchName)
 			Expect(err).ShouldNot(HaveOccurred())
 
-			secondComponentBaseBranchName = fmt.Sprintf("component-two-base-%s", util.GenerateRandomString(6))
+			secondComponentBaseBranchName = fmt.Sprintf("component-two-base-%s", utils.GenerateRandomString(6))
 			err = f.AsKubeAdmin.CommonController.Github.CreateRefInOrg(noAppOrgName, secretLookupGitSourceRepoTwoName, secretLookupDefaultBranchTwo, secretLookupGitRevisionTwo, secondComponentBaseBranchName)
 			Expect(err).ShouldNot(HaveOccurred())
 
@@ -951,8 +950,8 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 				Expect(err).ShouldNot(HaveOccurred())
 
 				// component names and pac branch names
-				firstComponentName = fmt.Sprintf("%s-%s", "component-one", util.GenerateRandomString(4))
-				secondComponentName = fmt.Sprintf("%s-%s", "component-two", util.GenerateRandomString(4))
+				firstComponentName = fmt.Sprintf("%s-%s", "component-one", utils.GenerateRandomString(4))
+				secondComponentName = fmt.Sprintf("%s-%s", "component-two", utils.GenerateRandomString(4))
 				firstPacBranchName = constants.PaCPullRequestBranchPrefix + firstComponentName
 				secondPacBranchName = constants.PaCPullRequestBranchPrefix + secondComponentName
 			})
@@ -1055,11 +1054,11 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 			timeout = 5 * time.Minute
 			interval = 5 * time.Second
 
-			applicationName = fmt.Sprintf("build-suite-test-application-%s", util.GenerateRandomString(4))
+			applicationName = fmt.Sprintf("build-suite-test-application-%s", utils.GenerateRandomString(4))
 			_, err = f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 			Expect(err).NotTo(HaveOccurred())
 
-			componentName = fmt.Sprintf("%s-%s", "test-annotations", util.GenerateRandomString(6))
+			componentName = fmt.Sprintf("%s-%s", "test-annotations", utils.GenerateRandomString(6))
 
 		})
 
@@ -1250,7 +1249,7 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 		var timeout time.Duration
 
 		BeforeAll(func() {
-			applicationName = fmt.Sprintf("test-app-%s", util.GenerateRandomString(4))
+			applicationName = fmt.Sprintf("test-app-%s", utils.GenerateRandomString(4))
 			f, err = framework.NewFramework(utils.GetGeneratedNamespace("build-e2e"))
 			Expect(err).NotTo(HaveOccurred())
 			testNamespace = f.UserNamespace
@@ -1258,12 +1257,12 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 			_, err = f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 			Expect(err).NotTo(HaveOccurred())
 
-			componentName = fmt.Sprintf("build-suite-test-component-image-source-%s", util.GenerateRandomString(6))
+			componentName = fmt.Sprintf("build-suite-test-component-image-source-%s", utils.GenerateRandomString(6))
 			outputContainerImage := ""
 			timeout = time.Second * 10
 			// Create a component with containerImageSource being defined
 			component := appservice.ComponentSpec{
-				ComponentName:  fmt.Sprintf("build-suite-test-component-image-source-%s", util.GenerateRandomString(6)),
+				ComponentName:  fmt.Sprintf("build-suite-test-component-image-source-%s", utils.GenerateRandomString(6)),
 				ContainerImage: containerImageSource,
 			}
 			_, err = f.AsKubeAdmin.HasController.CreateComponent(component, testNamespace, outputContainerImage, "", applicationName, true, map[string]string{})
@@ -1309,7 +1308,7 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 			f, err = framework.NewFramework(utils.GetGeneratedNamespace("build-e2e"))
 			Expect(err).NotTo(HaveOccurred())
 			testNamespace = f.UserNamespace
-			applicationName = fmt.Sprintf("test-app-%s", util.GenerateRandomString(4))
+			applicationName = fmt.Sprintf("test-app-%s", utils.GenerateRandomString(4))
 
 			_, err = f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 			Expect(err).NotTo(HaveOccurred())
@@ -1406,7 +1405,7 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 		})
 
 		It("default Pipeline bundle should be used and no additional Pipeline params should be added to the PipelineRun if one of the WhenConditions does not match", func() {
-			notMatchingComponentName := componentName + util.GenerateRandomString(6)
+			notMatchingComponentName := componentName + utils.GenerateRandomString(6)
 			// using cdq since git ref is not known
 			cdq, err := f.AsKubeAdmin.HasController.CreateComponentDetectionQuery(notMatchingComponentName, testNamespace, helloWorldComponentGitSourceURL, "", "", "", false)
 			Expect(err).NotTo(HaveOccurred())
@@ -1469,7 +1468,7 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 				Skip("a registry auth secret is already created in testing namespace - skipping....")
 			}
 
-			applicationName = fmt.Sprintf("test-app-%s", util.GenerateRandomString(4))
+			applicationName = fmt.Sprintf("test-app-%s", utils.GenerateRandomString(4))
 
 			_, err = f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 			Expect(err).NotTo(HaveOccurred())
@@ -1582,10 +1581,10 @@ var _ = framework.BuildSuiteDescribe("Build service E2E tests", Label("build", "
 			Expect(err).NotTo(HaveOccurred())
 			testNamespace = f.UserNamespace
 
-			applicationName = fmt.Sprintf("build-suite-component-update-%s", util.GenerateRandomString(4))
+			applicationName = fmt.Sprintf("build-suite-component-update-%s", utils.GenerateRandomString(4))
 			_, err = f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 			Expect(err).NotTo(HaveOccurred())
-			branchString := util.GenerateRandomString(4)
+			branchString := utils.GenerateRandomString(4)
 			ParentComponentDef.componentBranch = fmt.Sprintf("multi-component-parent-base-%s", branchString)
 			ChildComponentDef.componentBranch = fmt.Sprintf("multi-component-child-base-%s", branchString)
 			ParentComponentDef.gitRepo = fmt.Sprintf(githubUrlFormat, gihubOrg, ParentComponentDef.repoName)

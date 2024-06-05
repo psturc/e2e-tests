@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	. "github.com/onsi/ginkgo/v2"
@@ -32,8 +31,8 @@ var _ = framework.RemoteSecretSuiteDescribe(Label("remote-secret", "kubeconfig-a
 	var namespace string
 	var cfg *rest.Config
 	var remoteSecret *v1beta1.RemoteSecret
-	targetNamespace := fmt.Sprintf("test-target-namespace-%s", util.GenerateRandomString(4))
-	secretName := fmt.Sprintf("test-remote-kubeconfig-%s", util.GenerateRandomString(4))
+	targetNamespace := fmt.Sprintf("test-target-namespace-%s", utils.GenerateRandomString(4))
+	secretName := fmt.Sprintf("test-remote-kubeconfig-%s", utils.GenerateRandomString(4))
 	remoteSecretName := "test-remote-cluster-secret"
 	targetSecretName := ""
 

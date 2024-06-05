@@ -6,7 +6,6 @@ import (
 
 	"github.com/konflux-ci/operator-toolkit/metadata"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/konflux-ci/e2e-tests/pkg/clients/has"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
@@ -16,7 +15,7 @@ import (
 	integrationv1beta1 "github.com/konflux-ci/integration-service/api/v1beta1"
 	intgteststat "github.com/konflux-ci/integration-service/pkg/integrationteststatus"
 
-	appstudioApi "github.com/redhat-appstudio/application-api/api/v1alpha1"
+	appstudioApi "github.com/konflux-ci/application-api/api/v1alpha1"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -334,7 +333,7 @@ var _ = framework.IntegrationServiceSuiteDescribe("Integration Service E2E tests
 })
 
 func createApp(f framework.Framework, testNamespace string) string {
-	applicationName := fmt.Sprintf("integ-app-%s", util.GenerateRandomString(4))
+	applicationName := fmt.Sprintf("integ-app-%s", utils.GenerateRandomString(4))
 
 	_, err := f.AsKubeAdmin.HasController.CreateApplication(applicationName, testNamespace)
 	Expect(err).NotTo(HaveOccurred())
@@ -345,7 +344,7 @@ func createApp(f framework.Framework, testNamespace string) string {
 func createComponent(f framework.Framework, testNamespace, applicationName string) (string, *appstudioApi.Component) {
 	var originalComponent *appstudioApi.Component
 
-	componentName := fmt.Sprintf("integration-suite-test-component-git-source-%s", util.GenerateRandomString(6))
+	componentName := fmt.Sprintf("integration-suite-test-component-git-source-%s", utils.GenerateRandomString(6))
 	// Create a component with Git Source URL being defined
 	// using cdq since git ref is not known
 	cdq, err := f.AsKubeAdmin.HasController.CreateComponentDetectionQuery(componentName, testNamespace, componentRepoURL, "", "", "", false)

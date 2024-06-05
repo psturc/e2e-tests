@@ -5,10 +5,12 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"net"
 	"os"
 	"os/exec"
@@ -24,7 +26,6 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/konflux-ci/e2e-tests/pkg/constants"
 	"github.com/mitchellh/go-homedir"
 	"k8s.io/klog/v2"
@@ -119,7 +120,7 @@ func GetOpenshiftToken() (token string, err error) {
 }
 
 func GetGeneratedNamespace(name string) string {
-	return name + "-" + util.GenerateRandomString(4)
+	return name + "-" + GenerateRandomString(4)
 }
 
 func WaitUntilWithInterval(cond wait.ConditionFunc, interval time.Duration, timeout time.Duration) error {
@@ -415,4 +416,19 @@ func FilterSliceUsingPattern(pattern string, lString []string) []string {
 		}
 	}
 	return results
+}
+
+// GenerateRandomString generates a random string of lower case characters of
+// the given size
+func GenerateRandomString(n int) string {
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
+	b := make([]rune, n)
+
+	for i := range b {
+		// this error is ignored because it fails only when the 2nd arg of Int() is less then 0
+		// which wont happen
+		n, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letterRunes))))
+		b[i] = letterRunes[n.Int64()]
+	}
+	return string(b)
 }

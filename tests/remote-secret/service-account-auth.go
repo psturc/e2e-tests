@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/devfile/library/v2/pkg/util"
 	"github.com/konflux-ci/e2e-tests/pkg/framework"
 	"github.com/konflux-ci/e2e-tests/pkg/utils"
 	. "github.com/onsi/ginkgo/v2"
@@ -28,14 +27,14 @@ var _ = framework.RemoteSecretSuiteDescribe(Label("remote-secret", "service-acco
 	var err error
 	var namespace string
 	var remoteSecret *v1beta1.RemoteSecret
-	targetNamespace1 := fmt.Sprintf("spi-test-target1-%s", util.GenerateRandomString(4))
-	targetNamespace2 := fmt.Sprintf("spi-test-target2-%s", util.GenerateRandomString(4))
+	targetNamespace1 := fmt.Sprintf("spi-test-target1-%s", utils.GenerateRandomString(4))
+	targetNamespace2 := fmt.Sprintf("spi-test-target2-%s", utils.GenerateRandomString(4))
 	remoteSecretName := "test-remote-secret"
 	targetSecretName1 := ""
 	targetSecretName2 := ""
-	serviceAccountName := fmt.Sprintf("deployment-enabler-%s", util.GenerateRandomString(4))
-	roleName := fmt.Sprintf("deployment-enabler-%s", util.GenerateRandomString(4))
-	roleBindingName := fmt.Sprintf("deployment-enabler-%s", util.GenerateRandomString(4))
+	serviceAccountName := fmt.Sprintf("deployment-enabler-%s", utils.GenerateRandomString(4))
+	roleName := fmt.Sprintf("deployment-enabler-%s", utils.GenerateRandomString(4))
+	roleBindingName := fmt.Sprintf("deployment-enabler-%s", utils.GenerateRandomString(4))
 	AfterEach(framework.ReportFailure(&fw))
 
 	Describe("SVPI-558 - Authentication using Service Account", Ordered, func() {
