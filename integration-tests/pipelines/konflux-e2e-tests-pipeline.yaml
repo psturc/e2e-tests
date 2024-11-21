@@ -229,9 +229,9 @@ spec:
         resolver: git
         params:
           - name: url
-            value: https://github.com/konflux-ci/konflux-qe-definitions.git
+            value: https://github.com/psturc/konflux-qe-definitions.git
           - name: revision
-            value: main
+            value: KFLUXDP-42-test
           - name: pathInRepo
             value: common/tasks/pull-request-comment/0.1/pull-request-comment.yaml
       params:
@@ -251,3 +251,9 @@ spec:
           value: "$(tasks.test-metadata.results.git-org)"
         - name: git-revision
           value: "$(tasks.test-metadata.results.git-revision)"
+        - name: junit-report-name
+          value: e2e-report.xml
+        - name: e2e-log-name
+          value: e2e-tests.log
+        - name: cluster-provision-log-name
+          value: cluster-provision.log
