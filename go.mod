@@ -1,6 +1,6 @@
 module github.com/konflux-ci/e2e-tests
 
-go 1.22
+go 1.22.0
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.15.3
