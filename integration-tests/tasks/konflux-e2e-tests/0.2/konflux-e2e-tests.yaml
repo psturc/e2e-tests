@@ -205,6 +205,8 @@ spec:
         git clone --origin upstream --branch main "https://github.com/konflux-ci/e2e-tests.git" .
         make ci/prepare/e2e-branch 2>&1 | tee "${ARTIFACT_DIR}"/e2e-branch.log
 
+        oc delete clusterpolicy --all
+
         /bin/bash -c "integration-tests/scripts/konflux-e2e/0.2/konflux-e2e.sh"
     - name: sealights-reporter
       onError: continue
